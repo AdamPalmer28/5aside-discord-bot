@@ -1,0 +1,57 @@
+Date,Time,Home,Away,Home score,Away score,Pending
+2023-04-06,20:00,Teenage Mutant Ninja Skrtels,Hearn Green,5,4,False
+2023-04-06,20:30,FC Dynamo,MixMatch Utd,5,4,False
+2023-04-06,21:00,The House FC,Earth Wind and Maguire,2,11,False
+2023-04-06,21:30,Wesford FC,Bowsers Barhmi Army,8,9,False
+2023-04-13,20:00,Bowsers Barhmi Army,MixMatch Utd,12,4,False
+2023-04-13,20:30,Hearn Green,FC Dynamo,9,5,False
+2023-04-13,21:00,Wesford FC,The House FC,4,12,False
+2023-04-13,21:30,Earth Wind and Maguire,Teenage Mutant Ninja Skrtels,3,2,False
+2023-04-20,20:00,MixMatch Utd,Hearn Green,6,7,False
+2023-04-20,20:30,FC Dynamo,Earth Wind and Maguire,5,8,False
+2023-04-20,21:00,Teenage Mutant Ninja Skrtels,Wesford FC,10,4,False
+2023-04-20,21:30,The House FC,Bowsers Barhmi Army,2,7,False
+2023-04-27,20:00,Earth Wind and Maguire,MixMatch Utd,4,4,False
+2023-04-27,20:30,Wesford FC,FC Dynamo,7,9,False
+2023-04-27,21:00,Bowsers Barhmi Army,Hearn Green,9,6,False
+2023-04-27,21:30,The House FC,Teenage Mutant Ninja Skrtels,0,11,False
+2023-05-04,20:00,MixMatch Utd,Wesford FC,2,7,False
+2023-05-04,20:30,FC Dynamo,The House FC,5,4,False
+2023-05-04,21:00,Hearn Green,Earth Wind and Maguire,0,5,False
+2023-05-04,21:30,Teenage Mutant Ninja Skrtels,Bowsers Barhmi Army,4,2,False
+2023-05-11,20:00,Bowsers Barhmi Army,Earth Wind and Maguire,5,4,False
+2023-05-11,20:30,Teenage Mutant Ninja Skrtels,FC Dynamo,8,4,False
+2023-05-11,21:00,The House FC,MixMatch Utd,6,3,False
+2023-05-11,21:30,Wesford FC,Hearn Green,4,5,False
+2023-05-18,20:00,Earth Wind and Maguire,Wesford FC,6,4,False
+2023-05-18,20:30,FC Dynamo,Bowsers Barhmi Army,8,10,False
+2023-05-18,21:00,Hearn Green,The House FC,8,3,False
+2023-05-18,21:30,MixMatch Utd,Teenage Mutant Ninja Skrtels,3,6,False
+2023-05-25,20:00,Bowsers Barhmi Army,Wesford FC,4,2,False
+2023-05-25,20:30,MixMatch Utd,FC Dynamo,4,4,False
+2023-05-25,21:00,Hearn Green,Teenage Mutant Ninja Skrtels,3,4,False
+2023-05-25,21:30,Earth Wind and Maguire,The House FC,3,4,False
+2023-06-01,20:00,The House FC,Wesford FC,0,0,True
+2023-06-01,20:30,FC Dynamo,Hearn Green,0,0,True
+2023-06-01,21:00,Teenage Mutant Ninja Skrtels,Earth Wind and Maguire,0,0,True
+2023-06-01,21:30,MixMatch Utd,Bowsers Barhmi Army,0,0,True
+2023-06-08,20:00,Bowsers Barhmi Army,The House FC,0,0,True
+2023-06-08,20:30,Earth Wind and Maguire,FC Dynamo,0,0,True
+2023-06-08,21:00,Hearn Green,MixMatch Utd,0,0,True
+2023-06-08,21:30,Wesford FC,Teenage Mutant Ninja Skrtels,0,0,True
+2023-06-15,20:00,Hearn Green,Bowsers Barhmi Army,0,0,True
+2023-06-15,20:30,FC Dynamo,Wesford FC,0,0,True
+2023-06-15,21:00,MixMatch Utd,Earth Wind and Maguire,0,0,True
+2023-06-15,21:30,Teenage Mutant Ninja Skrtels,The House FC,0,0,True
+2023-06-22,20:00,Earth Wind and Maguire,Hearn Green,0,0,True
+2023-06-22,20:30,The House FC,FC Dynamo,0,0,True
+2023-06-22,21:00,Wesford FC,MixMatch Utd,0,0,True
+2023-06-22,21:30,Bowsers Barhmi Army,Teenage Mutant Ninja Skrtels,0,0,True
+2023-06-29,20:00,Earth Wind and Maguire,Bowsers Barhmi Army,0,0,True
+2023-06-29,20:30,FC Dynamo,Teenage Mutant Ninja Skrtels,0,0,True
+2023-06-29,21:00,MixMatch Utd,The House FC,0,0,True
+2023-06-29,21:30,Hearn Green,Wesford FC,0,0,True
+2023-07-06,20:00,Wesford FC,Earth Wind and Maguire,0,0,True
+2023-07-06,20:30,Bowsers Barhmi Army,FC Dynamo,0,0,True
+2023-07-06,21:00,The House FC,Hearn Green,0,0,True
+2023-07-06,21:30,Teenage Mutant Ninja Skrtels,MixMatch Utd,0,0,True

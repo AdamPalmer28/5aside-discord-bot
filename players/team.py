@@ -1,5 +1,5 @@
 from discord.ext import commands
-from player import Player
+from .player import Player
 
 class Team(commands.Cog):
 
@@ -7,8 +7,8 @@ class Team(commands.Cog):
         
         self.bot = bot
         self.load_team()
-
-
+        
+        
 
     def load_team(self):
         
@@ -17,15 +17,17 @@ class Team(commands.Cog):
         # read data from json
         #data =
 
+    @commands.command()
+    async def add_player(self, ctx, name: str, discord_id: str):
 
-    def add_player(self, name: str, discord_id: str):
-        
-        self.players.append(Player(name, discord_id))
+        #self.players.append(Player(name, discord_id))
+        self.players.append(name)
+
+        await ctx.send(f"{name} added to team")
+
 
     @commands.command()
     async def team(self, ctx):
-
-        print("called team command")
         
         for player in self.players:
             await ctx.send(player)
