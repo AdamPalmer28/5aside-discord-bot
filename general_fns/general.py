@@ -1,7 +1,7 @@
 
 
 def general_msg(bot):
-
+    
     @bot.event
     async def on_message(message):
         
@@ -15,3 +15,6 @@ def general_msg(bot):
 
         if message.content.lower() == 'what do you think of tottenham?':
             await message.channel.send('SHIT!')
+
+    
+

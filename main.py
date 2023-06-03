@@ -15,10 +15,9 @@ bot = commands.Bot(command_prefix='!', intents=intents)
 
 # ------------------------------------------------------------
 
-from players.team import Team
 from matches.games import Fixtures
-from general_fns.general import general_msg
-
+from general_fns import general_msg, user_help
+from user_data_mgt.team import Team
 
 # ============================================================
 # Instantiate classes
@@ -33,14 +32,14 @@ async def on_ready():
     await bot.add_cog(fixtures)
 
 
-
+user_help(bot)
 general_msg(bot)
 
 # ------------------------------------------------------------
 # Instantiate the GreetCommand class
 
 
-
+#@bot._schedule_event()
 
 # ------------------------------------------------------------
 # debug commands

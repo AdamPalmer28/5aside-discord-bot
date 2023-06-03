@@ -6,7 +6,7 @@ Bot handles tracking for 5 aside team
 
 General:
 
-- !5aside.help - shows help
+- !help - shows help
 
 Players:
 
@@ -23,7 +23,7 @@ Availability:
 Results:
 
 - !recent - shows recent results [DONE]
-- !table - shows league table
+- !table - shows league table [DONE]
 - !next - shows next game details [DONE]
 - !stats <player> - shows stats for player
 - !add goal <player> <num of goals> <game number>

@@ -12,7 +12,7 @@ class Team(commands.Cog):
 
     def load_team(self):
         
-        self.players = ['player1', 'player2', 'player3']
+        self.users = ['player1', 'player2', 'player3']
 
         # read data from json
         #data =
@@ -21,7 +21,7 @@ class Team(commands.Cog):
     async def add_player(self, ctx, name: str, discord_id: str):
 
         #self.players.append(Player(name, discord_id))
-        self.players.append(name)
+        self.users.append(name)
 
         await ctx.send(f"{name} added to team")
 
@@ -29,5 +29,5 @@ class Team(commands.Cog):
     @commands.command()
     async def team(self, ctx):
         
-        for player in self.players:
+        for player in self.users:
             await ctx.send(player)
