@@ -10,11 +10,54 @@ class Team(commands.Cog):
         self.path = path
         self.load_team()
         
+        answer_data = ['availability', 'paid', 'motm_vote', 'motm']
+        self.get_team_data(answer_data, group_answers=True)
         
+        self.get_team_data(['goal', 'assist'])
 
+
+    # =========================================================================
+    # --------------------- Class functions -----------------------------------
+
+    def get_team_data(self, attrs: list[str], group_answers: bool = False):
+        """
+        Creates team data for each fixture
+        
+        attrs: list of attributes to get data for
+        group_answers: bool - if True, group player answers together
+        """
+        
+        for attr in attrs:
+            setattr(self, attr, {})
+
+            for user, val in self.team.items():
+                name = val.display_name
+
+                user_dict = getattr(val, attr)
+
+                for date, answer in user_dict.items():
+                    if group_answers:
+                        # group answers will record names for each response
+                        if date not in getattr(self, attr):
+                            # if key doesn't exist, create it
+                            getattr(self, attr)[date] = {}
+                        if answer not in getattr(self, attr)[date]:
+                            # if answer doesn't exist, create it
+                            getattr(self, attr)[date][answer] = []
+
+                        # add name to answer
+                        getattr(self, attr)[date][answer].append(name)
+                    else:
+                        if date not in getattr(self, attr):
+                            getattr(self, attr)[date] = {}
+                        getattr(self, attr)[date][name] = answer
+
+
+
+    # =========================================================================
+    # --------------------- Team commands -------------------------------------
     @commands.command()
     async def add_player(self, ctx, name: str, discord_id: str):
-
 
         await ctx.send(f"{name} added to team")
 
@@ -27,9 +70,9 @@ class Team(commands.Cog):
             await ctx.send(val.name)
 
 
-    # ============================================================
+    # =========================================================================
     # Import and exporting team data to json
-    # ============================================================
+    # =========================================================================
 
     def load_team(self):
         "Import team data from json to Player classes"

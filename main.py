@@ -56,7 +56,7 @@ async def on_ready():
     await bot.add_cog(fixtures)
     await bot.add_cog(team)
 
-    # admin commands
+        # admin commands
     admin = AdminCmd(bot, team, fixtures)
     await bot.add_cog(admin)
 
