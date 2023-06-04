@@ -1,5 +1,5 @@
 from discord.ext import commands
-from .player import Player
+from .player import Player, player_stats
 import json
 
 class Team(commands.Cog):
@@ -23,23 +23,26 @@ class Team(commands.Cog):
         """
         Creates team data for each fixture
         
-        attrs: list of attributes to get data for
+        attrs: list of user data attributes 
         group_answers: bool - if True, group player answers together
         """
         
         for attr in attrs:
-            setattr(self, attr, {})
+            setattr(self, attr, {}) # create attribute
 
             for user, val in self.team.items():
                 name = val.display_name
 
-                user_dict = getattr(val, attr)
+                user_dict = getattr(val, attr) # get user data
 
                 for date, answer in user_dict.items():
+                    # loop through user data (dates)
+
                     if group_answers:
                         # group answers will record names for each response
+                        
                         if date not in getattr(self, attr):
-                            # if key doesn't exist, create it
+                            # if date doesn't exist, create it
                             getattr(self, attr)[date] = {}
                         if answer not in getattr(self, attr)[date]:
                             # if answer doesn't exist, create it
@@ -68,6 +71,17 @@ class Team(commands.Cog):
         for name, val in self.team.items():
             await ctx.send(name)
             await ctx.send(val.name)
+
+    @commands.command()
+    async def stats(self, ctx):
+        """
+        Creating a table of stats for a given data type
+        
+        columns = player | won | lost | draw | goals | assists | motm 
+                    avg gf | avg ga | avg gd | avg pts
+        """
+
+        table = player_stats(self.team, self.fixtures)
 
 
     # =========================================================================
