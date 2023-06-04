@@ -18,13 +18,27 @@ bot = commands.Bot(command_prefix='!', intents=intents)
 # ------------------------------------------------------------
 
 from matches.games import Fixtures
-from general_fns import general_msg, user_help
+from general_fns import general_msg, user_help, AdminCmd
 from user_data_mgt.team import Team
 
 # ============================================================
 # Instantiate classes
+
+def intialise():
+    "Instantiate classes"
+    # fixtures
+    fixtures = Fixtures(bot)
+    # team data
+    team = Team(bot, path)
+    # admin commands
+    admin = AdminCmd(bot, team, fixtures)
+
+    return fixtures, team, admin
+
 @bot.event
 async def on_ready():
+    # ------------------------------------------------------
+    # Start up messages
     print(f'{bot.user} has connected to Discord!')
 
     user_me = bot.get_user(184737297734959104)
@@ -35,48 +49,23 @@ async def on_ready():
     test_channel = bot.get_channel(1112672147412893696)
     await test_channel.send("Bot Started")
 
+    # ------------------------------------------------------
+    # Instantiate classes
+    fixtures, team, admin = intialise()
 
-    fixtures = Fixtures(bot)
     await bot.add_cog(fixtures)
-
-    team = Team(bot, path)
     await bot.add_cog(team)
+
+    # admin commands
+    admin = AdminCmd(bot, team, fixtures)
+    await bot.add_cog(admin)
+
+    admin.general_debug()
+
 
 
 user_help(bot)
 general_msg(bot)
 
-# ------------------------------------------------------------
-# Instantiate the GreetCommand class
-
-
-#@bot._schedule_event()
-
-# ------------------------------------------------------------
-# debug commands
-
-#show cogs
-@bot.command()
-async def cogs(ctx):
-    await ctx.channel.send(bot.cogs)
-
-# add player command
-@bot.command()
-async def test(ctx, arg):
-    await ctx.channel.send(arg)
-
-
-# pm user
-@bot.command()
-async def pm(ctx):
-
-    print(ctx.author)
-    print(ctx.author.id)
-    await ctx.author.send("hello")
-
-
-
-
-# ------------------------------------------------------------
 
 bot.run(TOKEN)
