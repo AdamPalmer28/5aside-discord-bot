@@ -4,7 +4,6 @@ Class handling the games results and fixtures for the 5aside league
 
 import pandas as pd
 from discord.ext import commands
-path = '//TRUENAS/Misc_storage/5aside_discord_bot'
 from datetime import datetime as dt
 
 
@@ -13,16 +12,19 @@ class Fixtures(commands.Cog):
     Show information about upcoming games, aswell as 
     """
 
-    def __init__(self, bot):
+    def __init__(self, bot, path):
 
         self.bot = bot
         self.team = 'Earth Wind and Maguire' # our team
 
+        self.path = path
+
         # match data
-        self.match_data = pd.read_csv(f'{path}/league_data/fixtures.csv')
+        self.match_data = pd.read_csv(f'{self.path}/league_data/fixtures.csv')
         self.analyse_match_data()
 
-    
+
+
     def analyse_match_data(self):
         """
         Analyse the match data
@@ -45,8 +47,20 @@ class Fixtures(commands.Cog):
                                          (self.match_data['Away'] == self.team)]
 
         # create league table
-        self.create_league_table()        
+        self.create_league_table()  
 
+        # refresh fixture dates - doesn't need to be done often
+        self.get_fixture_info()
+
+    def get_fixture_info(self):
+        """
+        Upcoming and previous fixture dates YYYY-MM-DD
+        """
+        self.upcoming_date = self.our_games.loc[(self.our_games['Datetime'] >= dt.now()),'Datetime'].iloc[0]
+        self.previous_date = self.our_games.loc[(self.our_games['Datetime'] < dt.now()),'Datetime'].iloc[-1]
+
+    def extract_match_data(self):
+        pass
     # -------------------------------------------------------------------------   
     # Commands
     # -------------------------------------------------------------------------   
@@ -106,7 +120,7 @@ class Fixtures(commands.Cog):
         await ctx.channel.send('```' + self.league_table.to_string(index=False) + '```')
 
     # =========================================================================
-    # Helper functions
+    # Helper functions - for chat msgs
     # =========================================================================
 
     def recent_form(self, teamname):

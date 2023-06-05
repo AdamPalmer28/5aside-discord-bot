@@ -24,6 +24,7 @@ class AdminCmd(commands.Cog):
             return False
         return True
 
+    # =========================================================================
     def general_debug(self):
 
         @self.bot.command()
@@ -36,3 +37,38 @@ class AdminCmd(commands.Cog):
         async def test(ctx, arg):
             if await self.check_user(ctx):
                 await ctx.channel.send(arg)
+
+    # =========================================================================
+    # --------------------- General commands ----------------------------------
+
+    @commands.command()
+    async def refresh(self, ctx):
+        "Refresh fixture data by scraping webpage"
+        if await self.check_user(ctx):
+
+            await ctx.channel.send("Fixtures refreshed")
+
+
+
+    # =========================================================================
+    # --------------------- Fixture commands ----------------------------------
+
+    @commands.command()
+    async def match_dates(self, ctx):
+        "Check match dates"
+        if await self.check_user(ctx):
+
+            upcoming = self.fixtures.upcoming_date
+            prev_date = self.fixtures.previous_date
+
+            await ctx.channel.send(f"Upcoming fixture: {upcoming}")
+            await ctx.channel.send(f"Previous fixture: {prev_date}")
+
+    # =========================================================================
+    # --------------------- Team commands -------------------------------------
+
+    @commands.command()
+    async def save_team(self, ctx):
+        if await self.check_user(ctx):
+            self.team.save_team()
+            await ctx.channel.send("Team saved")

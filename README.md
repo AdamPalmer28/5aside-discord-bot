@@ -8,28 +8,21 @@ General:
 
 - !help - shows help
 
-Players:
-
-- !add player <name> <discord_id>
-- !remove player <name>
-
 Availability:
 
-- !available <yes/no/maybe> <game number>
-- !next game players - shows who is available for next game
-- !paid <player> <yes/no> <game number>
-- !outstanding - shows who has not paid
+- !available <yes/no/maybe> <player> <game date>
+- !paid <yes/no> <player> <game date>
+- !outstanding - shows who has not paid [DONE]
 
 Results:
 
 - !recent - shows recent results [DONE]
 - !table - shows league table [DONE]
 - !next - shows next game details [DONE]
-- !stats <player> - shows stats for player
-- !add goal <player> <num of goals> <game number>
-- !remove goal <player> <num of goals> <game number>
+- !stats - shows player stats [DONE]
 
-Man of the match:
+Player stats
 
-- !motm
-- !motm vote <player> <game number>
+- !goal <num of goals> <player> <game date> - set number of goals for player at game date
+- !assist <num of goals> <player> <game date> - set number of assists for player at game date
+- !motm <player> <game date> - Vote for a motm player

@@ -26,12 +26,9 @@ from user_data_mgt.team import Team
 
 def intialise():
     "Instantiate classes"
-    # fixtures
-    fixtures = Fixtures(bot)
-    # team data
-    team = Team(bot, path)
-    # admin commands
-    admin = AdminCmd(bot, team, fixtures)
+    fixtures = Fixtures(bot, path) # fixtures class
+    team = Team(bot, fixtures, path) # team/user data
+    admin = AdminCmd(bot, team, fixtures) # admin commands
 
     return fixtures, team, admin
 
@@ -41,8 +38,8 @@ async def on_ready():
     # Start up messages
     print(f'{bot.user} has connected to Discord!')
 
-    user_me = bot.get_user(184737297734959104)
-    await user_me.send("Bot Started")
+    # user_me = bot.get_user(184737297734959104)
+    # await user_me.send("Bot Started")
 
     gen_channel = bot.get_channel(462411915839275009)
 

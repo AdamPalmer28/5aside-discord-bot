@@ -11,25 +11,22 @@ def user_help(bot):
         
         content = [
         '__**Avaliability**__',
-        '*!avaliable <yes/no/maybe>*   -   mark your avaliability for this week',
-        '*!paid <yes/no> <player>*   -   mark if you have paid, (player is optional input)',
+        '*!available <yes/no/maybe> <player> <game date>*   -   mark your avaliability for this week',
+        '*!paid <yes/no> <player> <game date>*   -   mark if you have paid, (player is optional input)',
         '*!outstanding*   -   show player outstanding payments',
         '',
-        '__**Fixtures**__',
+        '__**Results:**__',
         '*!next*   -   information about the next game',
         '*!recent*   -   show our recent results',
         '*!table*   -   show the league table',
+        '*!stats*   -   show player stats for the season',
         '',
         '__**Player stats**__',
-        '*!motm vote <player>*   -   vote for MOTM of most recent week',
-        # '*!goal_add <player> <number of goals> <game date>*   -   add player goals',
-        # '*!goal_remove <player> <number of goals> <game date>*   -   remove player goals',
-        # '*!assist_add <player> <number of assist> <game date>*   -   add player assist',
-        # '*!assist_remove <player> <number of assist> <game date>*   -   remove player assist',
+        '*!goal <num of goals> <player> <game date>*   -   set goals for a player', 
+        '*!assist <num of assists> <player> <game date>*   -   set assists for a player',
+        '*!motm <player> <game date>*   -   vote motm for a player',
         '',
-        '__**Team set up**__',
-        '*!player_add <name> <discord_id>*   -   add player to team',
-        '*!player_remove <name> <discord_id>* -remove player from team',
+    
         
         ]
 
