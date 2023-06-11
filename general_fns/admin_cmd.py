@@ -42,12 +42,11 @@ class AdminCmd(commands.Cog):
     # --------------------- General commands ----------------------------------
 
     @commands.command()
-    async def refresh(self, ctx):
+    async def refresh_fixtures(self, ctx):
         "Refresh fixture data by scraping webpage"
         if await self.check_user(ctx):
 
             await ctx.channel.send("Fixtures refreshed")
-
 
 
     # =========================================================================

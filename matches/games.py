@@ -6,6 +6,7 @@ import pandas as pd
 from discord.ext import commands
 from datetime import datetime as dt
 
+from .fixture_updates import fixture_data_format
 
 class Fixtures(commands.Cog):
     """
@@ -29,15 +30,8 @@ class Fixtures(commands.Cog):
         """
         Analyse the match data
         """
-        self.match_data['Date'] = pd.to_datetime(self.match_data['Date'])
-        self.match_data['Time'] = pd.to_datetime(self.match_data['Time'], format='%H:%M').dt.time
-        # combine date and time
-        self.match_data['Datetime'] = self.match_data.apply(lambda x: dt.combine(x['Date'], x['Time']), axis=1)
-
-        # determine winner
-        self.match_data['Winner'] = self.match_data.apply(lambda x: \
-                    x['Home'] if x['Home score'] > x['Away score'] else \
-                    ('Draw' if x['Home score'] == x['Away score'] else x['Away']), axis=1)
+        # format data
+        self.match_data = fixture_data_format(self.match_data)
 
         # split into upcoming and results
         self.results = self.match_data[self.match_data['Pending'] == False]
