@@ -13,14 +13,19 @@ class Team(commands.Cog):
         
         self.fixtures = fixtures
 
+
+        # create team data
+
         answer_data = ['availability', 'paid', 'motm_vote', 'motm']
-        self.get_team_data(answer_data, group_answers=True)
+        self.get_team_data(answer_data, group_answers = True)
         
         self.get_team_data(['goal', 'assist'])
 
 
+
     # =========================================================================
     # --------------------- Class functions -----------------------------------
+    # =========================================================================
 
     def get_team_data(self, attrs: list[str], group_answers: bool = False):
         """
@@ -35,7 +40,6 @@ class Team(commands.Cog):
 
             for id, user in self.team.items():
                 name = user.display_name
-
                 user_dict = getattr(user, attr) # get user data
 
                 for date, answer in user_dict.items():
@@ -67,6 +71,7 @@ class Team(commands.Cog):
 
     # =========================================================================
     # --------------------- Team commands -------------------------------------
+    # =========================================================================
 
     async def args_player_date(self, ctx, args, 
                          exp_player_ind: int, exp_date_ind: int,
@@ -82,34 +87,78 @@ class Team(commands.Cog):
         prev_date: bool - if date is assumed previous date is given, otherwise it is next date
         """
 
+        def check_player_date(player):
+            "Helper - Check if player is a date"
+            try:
+                dt.strptime(player, '%Y-%m-%d')
+                return True
+            except ValueError:
+                return False
+
         # Determine discord user / player        
-        player = False
+        # ---------------------------------------------------------------------
         try:
             player = args[exp_player_ind] # suspected player
-            for id, user in self.team.items():
-                # player not in team
-                if player.lower() in user.name:
-                    player = [user.display_name, id]
-                    break
-        except KeyError:
-            player = False
+            
+            if not check_player_date(player): # check if player is a date input
+
+                for id, user in self.team.items():
+                    # player not in team
+                    if player.lower() in user.name:
+                        player = [user.display_name, id] # found player
+                        break
+                else:
+                    # Error - player not found
+                    await ctx.send(f'Player name: {player} not found - please try again')
+                    return False, False
+            else:
+                # player is a date
+                exp_date_ind = exp_player_ind
+                player = [ctx.author.display_name, ctx.author.id] # assume user is calling command
+            
+        except IndexError:
+            # no player given - assume user is calling command
+            player = [ctx.author.display_name, ctx.author.id] 
 
         # Determine date
+        # ---------------------------------------------------------------------
         try:
             date = args[exp_date_ind]
+            date = dt.strptime(date, '%Y-%m-%d') # may fail
 
-            # check date is valid (and thursday)
-            date = dt.strptime(date, '%Y-%m-%d')
             if date.weekday() != 3:
-                pass
+                feedback = f'Date must be a Thursday - entered date ({date.date()}) is a ' \
+                            + date.strftime('%A')
+                
+                # find closest dates
+                match_data = self.fixtures.match_data
+                next_date = match_data.loc[match_data['Date'] > date].iloc[0]['Date']
+                prev_date = match_data.loc[match_data['Date'] < date].iloc[-1]['Date']
 
+                feedback += f'\nClosest fixture dates are {prev_date.date()} and {next_date.date()}'
+
+                await ctx.send(feedback)
+
+                return False, False
+        
+        # Error handling
+         
         except IndexError:
             # not enough arguments - assume date is latest 
             date = self.fixtures.previous_date if prev_date \
                             else self.fixtures.upcoming_date
-            
+            await ctx.send(f'No date given - assuming date: {date.date()}')
+        
+        except TypeError:
+            # unrecognised date format
+            feedback = 'Date must be in the format YYYY-MM-DD'
+            await ctx.send(feedback)
+            return False, False
         
         return player, date
+    
+    # -------------------------------------------------------------------------
+    # commands
     # -------------------------------------------------------------------------
 
     @commands.command()
@@ -150,6 +199,14 @@ class Team(commands.Cog):
             
         await ctx.send(msg)
         return
+
+    @commands.command()
+    async def goal(self, ctx, *args):
+        goals = args[0]
+        player, date = await self.args_player_date(ctx, args, 1, 2)
+
+        await ctx.send(f'Goals: {goals} Player: {player} - Date: {date}')
+
 
     @commands.command()
     async def motm(self, ctx, *args):
