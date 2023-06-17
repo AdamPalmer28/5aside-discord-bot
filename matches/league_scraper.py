@@ -61,4 +61,7 @@ def get_league_matches():
     data['Home score'] = data['Home score'].astype(int)
     data['Away score'] = data['Away score'].astype(int)
 
+    # time formatting
+    data['Time'] = pd.to_datetime(data['Time'], format='%H:%M').dt.time 
+
     return data

@@ -5,11 +5,13 @@ from datetime import datetime as dt
 
 class Team(commands.Cog):
 
-    def __init__(self, bot, fixtures, path):
+    def __init__(self, bot, fixtures, path, channel):
         
         self.bot = bot
         self.path = path
         self.load_team()
+
+        self.channel = channel
         
         self.fixtures = fixtures
 
@@ -20,7 +22,6 @@ class Team(commands.Cog):
         self.get_team_data(answer_data, group_answers = True)
         
         self.get_team_data(['goal', 'assist'])
-
 
 
     # =========================================================================
@@ -90,7 +91,8 @@ class Team(commands.Cog):
         def check_player_date(player):
             "Helper - Check if player is a date"
             try:
-                dt.strptime(player, '%Y-%m-%d')
+                dateformat = ('%d/%m/%Y' if '/' in player else '%Y-%m-%d')
+                dt.strptime(player, dateformat)
                 return True
             except ValueError:
                 return False
@@ -124,7 +126,9 @@ class Team(commands.Cog):
         # ---------------------------------------------------------------------
         try:
             date = args[exp_date_ind]
-            date = dt.strptime(date, '%Y-%m-%d') # may fail
+            
+            dateformat = ('%d/%m/%Y' if '/' in date else '%Y-%m-%d')
+            date = dt.strptime(date, dateformat)  
 
             if date.weekday() != 3:
                 feedback = f'Date must be a Thursday - entered date ({date.date()}) is a ' \

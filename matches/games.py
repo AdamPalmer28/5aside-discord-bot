@@ -5,20 +5,24 @@ Class handling the games results and fixtures for the 5aside league
 import pandas as pd
 from discord.ext import commands
 from datetime import datetime as dt
+import copy
 
-from .fixture_updates import fixture_data_format
+from .fixture_updates import fixture_data_format, check_new_fixture_data
+from .league_scraper import get_league_matches
+
 
 class Fixtures(commands.Cog):
     """
     Show information about upcoming games, aswell as 
     """
 
-    def __init__(self, bot, path):
+    def __init__(self, bot, path, channel):
 
         self.bot = bot
         self.team = 'Earth Wind and Maguire' # our team
 
         self.path = path
+        self.channel = channel
 
         # match data
         self.match_data = pd.read_csv(f'{self.path}/league_data/fixtures.csv')
@@ -53,8 +57,27 @@ class Fixtures(commands.Cog):
         self.upcoming_date = self.our_games.loc[(self.our_games['Datetime'] >= dt.now()),'Datetime'].iloc[0]
         self.previous_date = self.our_games.loc[(self.our_games['Datetime'] < dt.now()),'Datetime'].iloc[-1]
 
-    def extract_match_data(self):
-        pass
+    async def extract_match_data(self):
+        "Extract new match data"
+
+        # get new data
+        new_data = get_league_matches()
+        new_data_org = copy.deepcopy(new_data)
+
+        # check new data
+        data, case = await check_new_fixture_data(new_data, self.match_data,        
+                                        self.path, self.bot, self.channel)
+        
+        if case == 3: 
+            # no new data
+            return False
+        else:
+            # update data
+            self.match_data = new_data_org
+            new_data_org.to_csv(f'{self.path}/league_data/fixtures.csv', index=False)
+
+            self.analyse_match_data()
+            return True
     # -------------------------------------------------------------------------   
     # Commands
     # -------------------------------------------------------------------------   

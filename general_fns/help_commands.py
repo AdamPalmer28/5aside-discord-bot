@@ -10,24 +10,24 @@ def user_help(bot):
         help_msg = '__**5aside discord bot**__\n\n'
         
         content = [
-        '__**Avaliability**__',
-        '*!available <yes/no/maybe> <player> <game date>*   -   mark your avaliability for this week',
-        '*!paid <yes/no> <player> <game date>*   -   mark if you have paid, (player is optional input)',
-        '*!outstanding*   -   show player outstanding payments',
-        '',
         '__**Results:**__',
-        '*!next*   -   information about the next game',
-        '*!recent*   -   show our recent results',
-        '*!table*   -   show the league table',
-        '*!stats*   -   show player stats for the season',
+        '!next   -   information about the next game',
+        '!recent   -   show our recent results',
+        '!table   -   show the league table',
+        '!stats   -   show player stats for the season',
+        '',
+        '__**Avaliability**__',
+        '!outstanding   -   show player outstanding payments',
+        '!available  yes/no/maybe   -   mark your avaliability (optional inputs)',
+        '!paid  yes/no   -   mark if you have paid (optional inputs)',
         '',
         '__**Player stats**__',
-        '*!goal <num of goals> <player> <game date>*   -   set goals for a player', 
-        '*!assist <num of assists> <player> <game date>*   -   set assists for a player',
-        '*!motm <player> <game date>*   -   vote motm for a player',
+        '!goal  number   -   (optional inputs)', 
+        '!assist  number  -   (optional inputs)',
+        '!vote  player   -   vote motm for a player',
         '',
-    
-        
+        "**Optional inputs** - *player and game_date are optional inputs, if not provide it presume you are the player and game_date is more relevant date*",
+        '',
         ]
 
         help_msg += '\n'.join(content)
