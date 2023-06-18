@@ -24,15 +24,16 @@ class AdminCmd(commands.Cog):
             return False
         return True
 
+
     # =========================================================================
     def general_debug(self):
+        "General debugging commands"
 
         @self.bot.command()
         async def cogs(ctx):
             if await self.check_user(ctx):
                 await ctx.channel.send(self.bot.cogs)
-            
-
+             
         @self.bot.command()
         async def test(ctx, arg):
             if await self.check_user(ctx):

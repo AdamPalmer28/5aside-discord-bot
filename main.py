@@ -18,22 +18,36 @@ intents.message_content = True
 bot = commands.Bot(command_prefix='!', intents=intents)
 
 # ------------------------------------------------------------
+# load meta data 
+import json
+with open(f'{path}meta_data.json', 'r') as f:
+    meta = json.load(f)
+
+# process meta data
+channels = meta['channel_id']
+channel_id = channels['test']
+admin = meta['admin_id'][0]
+
+# ------------------------------------------------------------
 
 from matches.games import Fixtures
-from general_fns import general_msg, user_help, AdminCmd
+from general_fns import general_msg, user_help, AdminCmd, Scheduler
 from user_data_mgt.team import Team
 
 # ============================================================
 # Instantiate classes
 
-def intialise():
+def intialise(channel):
     "Instantiate classes"
 
-    fixtures = Fixtures(bot, path, channel_id) # fixtures class
-    team = Team(bot, fixtures, path, channel_id) # team/user data
+    fixtures = Fixtures(bot, path, channel) # fixtures class
+    team = Team(bot, fixtures, path, channel) # team/user data
     admin = AdminCmd(bot, team, fixtures) # admin commands
 
+    scheduler = Scheduler(bot, meta, path, team, fixtures) # scheduler
+
     return fixtures, team, admin
+
 
 @bot.event
 async def on_ready():
@@ -44,11 +58,12 @@ async def on_ready():
     gen_channel = bot.get_channel(462411915839275009)
 
     test_channel = bot.get_channel(1112672147412893696)
-    await test_channel.send("Bot Started")
+    #await test_channel.send("Bot Started")
+    channel = test_channel
 
     # ------------------------------------------------------
     # Instantiate classes
-    fixtures, team, admin = intialise()
+    fixtures, team, admin = intialise(channel)
 
     await bot.add_cog(fixtures)
     await bot.add_cog(team)

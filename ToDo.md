@@ -10,8 +10,6 @@ Discord bot to-do list
 
 - Schedule events:
 
-  - Fixture extract
-    - Results announcement
   - Next match information (wed & thur)
   - Chase:
     - motm vote
@@ -19,8 +17,3 @@ Discord bot to-do list
     - Paid
   - Announce motm vote:
     - how to @ user
-
-- !next match:
-
-  - move to team
-  - add team availiability to next

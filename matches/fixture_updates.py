@@ -37,14 +37,12 @@ async def check_new_fixture_data(new_data: pd.DataFrame, old_data: pd.DataFrame,
     # fix time column (remove seconds)
     new_data = fixture_data_format(new_data)
 
-    channel = bot.get_channel(channel_id)
-
     # case 1: new season
     if all(new_data['Date'] != old_data['Date']):    
         latest_date = dt.strptime(old_data['Date'].iloc[-1], '%Y-%m-%d')
 
         #old_season_path = f'//TRUENAS/Misc_storage/5aside_discord_bot/league_data/old_seasons/'
-        old_season_path = path+ f'/league_data/old_seasons/'
+        old_season_path = path + f'/league_data/old_seasons/'
         old_data.to_csv(old_season_path+f'Season-{latest_date.strftime("%Y-%m-%d")}.csv', index=False)
         
         return new_data, 1
@@ -72,7 +70,7 @@ async def check_new_fixture_data(new_data: pd.DataFrame, old_data: pd.DataFrame,
 
         async def new_team(new, old):
             "Helper function - msgs about team change"
-            msg = f"\n**New team added**: {new} (previously was {old})\n\n"
+            msg = f"\n\n**New team added**: {new} (previously was {old})"
             await channel.send(msg)
 
         # check for new team in latest fixtures

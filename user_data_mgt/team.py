@@ -15,13 +15,14 @@ class Team(commands.Cog):
         
         self.fixtures = fixtures
 
+        self.admin_users = [184737297734959104]
 
         # create team data
 
         answer_data = ['availability', 'paid', 'motm_vote', 'motm']
         self.get_team_data(answer_data, group_answers = True)
-        
         self.get_team_data(['goal', 'assist'])
+
 
 
     # =========================================================================
@@ -87,6 +88,10 @@ class Team(commands.Cog):
         exp_date_ind: expected index of date
         prev_date: bool - if date is assumed previous date is given, otherwise it is next date
         """
+
+        if str(ctx.author.id) not in self.team.keys(): # check user is part of team
+            await ctx.send(f'You are not part of the team - please contact an admin')
+            return False, False
 
         def check_player_date(player):
             "Helper - Check if player is a date"
@@ -159,7 +164,7 @@ class Team(commands.Cog):
             await ctx.send(feedback)
             return False, False
         
-        return player, date
+        return player, date.strftime('%Y-%m-%d')
     
     # -------------------------------------------------------------------------
     # commands
@@ -206,15 +211,64 @@ class Team(commands.Cog):
 
     @commands.command()
     async def goal(self, ctx, *args):
-        goals = args[0]
+        "Add a goal to a player"
+
+        # check arguments
+        num_goals = args[0]
         player, date = await self.args_player_date(ctx, args, 1, 2)
 
-        await ctx.send(f'Goals: {goals} Player: {player} - Date: {date}')
+        if (player == False) or (date == False):
+            return
+        try:
+            num_goals = int(num_goals)
+        except ValueError:
+            await ctx.send(f'Goals must be an integer - you entered {num_goals}')
+            return
+
+        # excute command
+        display_name, id = player
+
+        user = self.team[str(id)]
+        prev_fig = user.goal.get(date, 0)
+
+        await ctx.send(f'Set {num_goals} goals to player {user.display_name}  (Date: {date}), previous result: {prev_fig}')
+        user.goal[date] = num_goals # update figures
+        
+        self.save_team() # save data
+
+
 
 
     @commands.command()
-    async def motm(self, ctx, *args):
+    async def vote(self, ctx, *args):
         pass
+
+    @commands.command()
+    async def next(self, ctx):
+        """
+        Show the next game date and time and the recent form of the opponent
+        """
+        next_info, opponent_form, date = self.fixtures.next_game_info()
+
+        # avaliablity of players
+        avaliable_msg = '__**Team avaliability**__:\n'
+        cur_team = self.availability.get(date, {})
+
+        for response, players in cur_team.items():
+            avaliable_msg += f"{response.title()}: {', '.join(players)}\n"
+
+            # no response
+        no_response = []
+        for user in self.team.values():
+            if not any(user.display_name in lst for lst in cur_team.values()):
+                no_response.append(user.display_name)
+
+        if len(no_response) > 0:
+            avaliable_msg += f'No response: {", ".join(no_response)}'
+
+
+        # send messages
+        await ctx.channel.send(next_info + '\n\n' + avaliable_msg + '\n\n' + opponent_form)
 
 
     @commands.command()

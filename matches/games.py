@@ -73,6 +73,11 @@ class Fixtures(commands.Cog):
             return False
         else:
             # update data
+            if case == 1:
+                # new season
+                self.channel.send("ANew season")
+
+
             self.match_data = new_data_org
             new_data_org.to_csv(f'{self.path}/league_data/fixtures.csv', index=False)
 
@@ -82,27 +87,7 @@ class Fixtures(commands.Cog):
     # Commands
     # -------------------------------------------------------------------------   
 
-    @commands.command()
-    async def next(self, ctx):
-        """
-        Show the next game date and time and the recent form of the opponent
-        """
-        # get next game
-        upcoming_games = self.our_games.loc[(self.our_games['Datetime'] >= dt.now())]
-        next_game = upcoming_games.iloc[0]
-
-        # get opponent
-        opponent = next_game['Away'] if next_game['Home'] == self.team else next_game['Home']
-
-        # Match fixture
-        response = f'Next game is against __**{opponent}**__ on __**{next_game["Date"].date()}**__' + \
-            f' at __**{next_game["Time"].strftime("%H:%M")}**__'
-        await ctx.channel.send(response)
-
-        # form
-        form = self.recent_form(opponent)
-        await ctx.channel.send(form)
-
+    
     @commands.command()
     async def recent(self, ctx):
         """
@@ -140,6 +125,27 @@ class Fixtures(commands.Cog):
     # Helper functions - for chat msgs
     # =========================================================================
 
+    def next_game_info(self):
+        """
+        Show the next game date and time and the recent form of the opponent
+        """
+        # get next game
+        upcoming_games = self.our_games.loc[(self.our_games['Datetime'] >= dt.now())]
+        next_game = upcoming_games.iloc[0]
+
+
+        # get opponent
+        opponent = next_game['Away'] if next_game['Home'] == self.team else next_game['Home']
+
+        # Match fixture
+        response = f'Next game is against __**{opponent}**__ on __**{next_game["Date"].date()}**__' + \
+            f' at __**{next_game["Time"].strftime("%H:%M")}**__'
+        
+        # form
+        form = self.recent_form(opponent)
+
+        return response, form, (next_game["Date"].date().strftime("%Y-%m-%d"))
+
     def recent_form(self, teamname):
         """
         Return the string summary message of a team's last 5 games
@@ -150,7 +156,7 @@ class Fixtures(commands.Cog):
                         (self.match_data['Pending'] == False)].iloc[-5:]
         last5 = last5.sort_values(by='Datetime', ascending=False)
 
-        top_str = 'Last 5 games:  '
+        top_str = '__**Last 5 games:**__  '
         form_str = '\n'
 
         for i, row in last5.iterrows():
@@ -172,7 +178,7 @@ class Fixtures(commands.Cog):
 
             form_str += '\n'
 
-        form_str = top_str + '\n' + form_str
+        form_str = top_str + form_str
         return form_str
 
     def create_league_table(self):
