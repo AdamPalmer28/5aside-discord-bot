@@ -33,6 +33,8 @@ class Scheduler(commands.Cog):
 
         self.meta = meta
         self.extract_meta()
+
+        self.channel = bot.get_channel(self.meta['channel_id']['test'])
         
 
         self.routine.start()
@@ -44,6 +46,7 @@ class Scheduler(commands.Cog):
     @tasks.loop(time = update_time)
     async def routine(self):
         "Run the routine of scheduled tasks"
+        cur_day = dt.now().weekday()
 
         last_week, upcoming_date = get_recent_thursday()
 
@@ -54,13 +57,33 @@ class Scheduler(commands.Cog):
             if await self.fixtures.extract_match_data():
                 self.meta['fixtures']['last_success'] = dt.now()
 
-        # chaser updates
-
-
         # next match info
-        if dt.now().weekday() in [2, 3]:
-            # 
-            await self.team.next()
+        if cur_day in [2, 3]: # wednesday, thursday
+            msg = self.team.next_msg()
+            await self.channel.send(msg)
+
+        # chaser avaliability & paid
+        if cur_day in [0, 2, 3]: # monday, wednesday, thursday
+            
+            self.team.get_team_data(['availability', 'paid'], group_answers = True)
+
+            # chaser availability
+            upcoming_date = upcoming_date.strftime('%Y-%m-%d')
+            msg = self.team.availability_msg[upcoming_date]
+            
+
+
+            # chaser paid
+
+
+
+
+
+
+        # motm
+
+
+        
 
 
 

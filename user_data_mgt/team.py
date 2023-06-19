@@ -24,7 +24,6 @@ class Team(commands.Cog):
         self.get_team_data(['goal', 'assist'])
 
 
-
     # =========================================================================
     # --------------------- Class functions -----------------------------------
     # =========================================================================
@@ -75,6 +74,183 @@ class Team(commands.Cog):
     # --------------------- Team commands -------------------------------------
     # =========================================================================
 
+    @commands.command()
+    async def avaliable(self, ctx, *args):
+        "mark avaliability for a given game"
+        resp = args[0].lower()
+
+        player, date = await self.args_player_date(ctx, args, 1, 2)
+        
+        # check arguments
+        if resp not in ['yes', 'y', 'no', 'n', 'maybe']:
+            await ctx.send(f"Response must be 'yes', 'no' or 'maybe' - you entered {resp}")
+            return
+        if (player == False) or (date == False):
+            return
+        resp = 'yes' if resp in ['yes', 'y'] else 'no' if resp in ['no', 'n'] else 'maybe'
+        
+        # excute command
+        display_name, id = player
+        user = self.team[str(id)]
+
+        await ctx.send(f'Set {user.display_name} avaliability to: {resp} for game on {date}')
+        user.availability[date] = resp # update figures
+
+        # add default paid response
+        user.paid[date] = user.paid.get(date, 'no')
+
+        self.save_team() # save data
+
+    @commands.command()
+    async def paid(self, ctx, *args):
+        "Check who has paid for a given game"
+        resp = args[0].lower()
+        player, date = await self.args_player_date(ctx, args, 1, 2)
+
+        # check arguments
+        if resp not in ['yes', 'y', 'no', 'n']:
+            await ctx.send(f"Response must be 'yes' or 'no' - you entered {resp}")
+            return
+        if (player == False) or (date == False):
+            return
+        
+        resp = 'yes' if resp in ['yes', 'y'] else 'no'
+
+        # excute command
+        display_name, id = player
+        user = self.team[str(id)]
+
+        await ctx.send(f'Set {user.display_name} to paid status to: {resp} for game on {date}')
+        user.paid[date] = resp # update figures
+
+        self.save_team() # save data
+
+
+    @commands.command()
+    async def outstanding(self, ctx):
+        "Check who has outstanding payments"
+        # get outstanding payments
+        outstanding = {} # Name: [dates]
+        self.get_team_data(['paid'], group_answers = True)
+
+        for date, val in self.paid.items():
+
+            if False in val:
+                for name in val[False]:
+                    if name not in outstanding:
+                        outstanding[name] = []
+                    outstanding[name].append(date)
+
+        # create message
+        if len(outstanding) == 0:
+            await ctx.send('No outstanding payments')
+            return
+
+        msg = 'The following people have outstanding payments:\n'
+        for name, dates in outstanding.items():
+            msg += f'**{name}** - {len(dates)} games - {dates}\n'
+            
+        await ctx.send(msg)
+        return
+
+    @commands.command()
+    async def goal(self, ctx, *args):
+        "Add a goal to a player"
+
+        player, date = await self.args_player_date(ctx, args, 1, 2)
+        # check arguments
+        num_goals = args[0]
+        num_goals = self.check_int(num_goals)
+
+        if not num_goals:
+            await ctx.send(f'Goals must be an integer - you entered {num_goals}')
+            return
+        if (player == False) or (date == False):
+            return
+        
+        # excute command
+        display_name, id = player
+
+        user = self.team[str(id)]
+        prev_fig = user.goal.get(date, 0)
+
+        await ctx.send(f'Set {num_goals} goals to player {user.display_name}  (Date: {date}), previous result: {prev_fig}')
+        user.goal[date] = num_goals # update figures
+        
+        self.save_team() # save data
+
+    @commands.command()
+    async def assist(self, ctx, *args):
+        "Add an assist to a player"
+
+        player, date = await self.args_player_date(ctx, args, 1, 2)
+        # check arguments
+        num_assists = args[0]
+
+        num_assists = self.check_int(num_assists)
+        if not num_assists:
+            await ctx.send(f'Assists must be an integer - you entered {num_assists}')
+            return
+        if (player == False) or (date == False):
+            return
+        
+        # excute command
+        display_name, id = player
+
+        user = self.team[str(id)]
+        prev_fig = user.assist.get(date, 0)
+
+        await ctx.send(f'Set {num_assists} assists to player {user.display_name}  (Date: {date}), previous result: {prev_fig}')
+        user.assist[date] = num_assists # update figures
+
+        self.save_team() # save data
+
+
+    @commands.command()
+    async def vote(self, ctx, *args):
+        "Vote for motm"
+        player, date = await self.args_player_date(ctx, args, 0, 1)
+        
+        if player == ctx.author.id:
+            await ctx.send('You cannot vote for yourself')
+            return
+        if (player == False) or (date == False):
+            return
+        
+        # excute command
+        display_name, id = player
+        user = self.team[str(id)]
+
+        # check if user has already voted
+        result = user.motm_vote.get(date, False)
+        if result:
+            await ctx.send(f'You have already voted for {result}... I will change that for you')
+        
+        user.motm_vote[date] = id # update figures
+        self.save_team() # save data
+        
+    @commands.command()
+    async def next(self, ctx):
+        "Show the next game date and time and the recent form of the opponent"
+        msg = self.next_msg()
+        await ctx.channel.send(msg)
+
+
+    @commands.command()
+    async def stats(self, ctx):
+        """
+        Creating a table of stats for a given data type
+        columns = player | won | lost | draw | goals | assists | motm 
+                    avg gf | avg ga | avg gd | avg pts
+        """
+
+        table = player_stats(self.team, self.fixtures.our_games)
+
+        await ctx.send(f'```{table.to_string(index=False)}```')
+
+    # =========================================================================
+    # --------------------- Helper functions ----------------------------------
+    # =========================================================================
     async def args_player_date(self, ctx, args, 
                          exp_player_ind: int, exp_date_ind: int,
                         prev_date: bool = True):
@@ -166,88 +342,15 @@ class Team(commands.Cog):
         
         return player, date.strftime('%Y-%m-%d')
     
-    # -------------------------------------------------------------------------
-    # commands
-    # -------------------------------------------------------------------------
-
-    @commands.command()
-    async def avaliable(self, ctx, *args):
-        "Check who is avaliable for a given game"
-        
-        await ctx.send(self.availability)
-
-    @commands.command()
-    async def paid(self, ctx, *args):
-        "Check who has paid for a given game"
-
-        await ctx.send(self.paid)
-        for arg in args:
-            print(arg)
-
-    @commands.command()
-    async def outstanding(self, ctx):
-        "Check who has outstanding payments"
-        # get outstanding payments
-        outstanding = {} # Name: [dates]
-        for date, val in self.paid.items():
-
-            if False in val:
-                for name in val[False]:
-                    if name not in outstanding:
-                        outstanding[name] = []
-                    outstanding[name].append(date)
-
-        # create message
-        if len(outstanding) == 0:
-            await ctx.send('No outstanding payments')
-            return
-
-        msg = 'The following people have outstanding payments:\n'
-        for name, dates in outstanding.items():
-            msg += f'**{name}** - {len(dates)} games - {dates}\n'
-            
-        await ctx.send(msg)
-        return
-
-    @commands.command()
-    async def goal(self, ctx, *args):
-        "Add a goal to a player"
-
-        # check arguments
-        num_goals = args[0]
-        player, date = await self.args_player_date(ctx, args, 1, 2)
-
-        if (player == False) or (date == False):
-            return
+    def check_int(self, num):
+        "Check if number is an integer"
         try:
-            num_goals = int(num_goals)
+            return num
         except ValueError:
-            await ctx.send(f'Goals must be an integer - you entered {num_goals}')
-            return
-
-        # excute command
-        display_name, id = player
-
-        user = self.team[str(id)]
-        prev_fig = user.goal.get(date, 0)
-
-        await ctx.send(f'Set {num_goals} goals to player {user.display_name}  (Date: {date}), previous result: {prev_fig}')
-        user.goal[date] = num_goals # update figures
+            return False
         
-        self.save_team() # save data
-
-
-
-
-    @commands.command()
-    async def vote(self, ctx, *args):
-        pass
-
-    @commands.command()
-    async def next(self, ctx):
-        """
-        Show the next game date and time and the recent form of the opponent
-        """
+    def next_msg(self):
+        "Generate the next game message"
         next_info, opponent_form, date = self.fixtures.next_game_info()
 
         # avaliablity of players
@@ -266,24 +369,9 @@ class Team(commands.Cog):
         if len(no_response) > 0:
             avaliable_msg += f'No response: {", ".join(no_response)}'
 
-
-        # send messages
-        await ctx.channel.send(next_info + '\n\n' + avaliable_msg + '\n\n' + opponent_form)
-
-
-    @commands.command()
-    async def stats(self, ctx):
-        """
-        Creating a table of stats for a given data type
-        columns = player | won | lost | draw | goals | assists | motm 
-                    avg gf | avg ga | avg gd | avg pts
-        """
-
-        table = player_stats(self.team, self.fixtures.our_games)
-
-        await ctx.send(f'```{table.to_string(index=False)}```')
-
-
+        return (next_info + '\n\n' + avaliable_msg + '\n\n' + opponent_form)
+        
+        
     # =========================================================================
     # Import and exporting team data to json
     # =========================================================================

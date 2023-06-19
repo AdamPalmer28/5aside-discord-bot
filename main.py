@@ -4,8 +4,8 @@ Driver file for the discord bot
 # ============================================================
 import os
 #TOKEN = os.environ.get('discord_token')
-path = '//TRUENAS/Misc_storage/5aside_discord_bot/'
 
+path = '//TRUENAS/Misc_storage/5aside_discord_bot/'
 TOKEN = open("//TRUENAS/Misc_storage/env_vars/discord.txt", "r").read()
 
 channel_id = 1112672147412893696
