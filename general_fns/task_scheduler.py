@@ -49,7 +49,10 @@ class Scheduler(commands.Cog):
         cur_day = dt.now().weekday()
 
         last_week, upcoming_date = get_recent_thursday()
+        upcoming_date = upcoming_date.strftime('%Y-%m-%d')
+        last_week = last_week.strftime('%Y-%m-%d')
 
+        # ---------------------------------------------------------------------
         # fixture updates
         if self.meta['fixtures']['last_success'] < last_week + timedelta(days = 1):
         
@@ -57,34 +60,106 @@ class Scheduler(commands.Cog):
             if await self.fixtures.extract_match_data():
                 self.meta['fixtures']['last_success'] = dt.now()
 
+        # ---------------------------------------------------------------------
         # next match info
         if cur_day in [2, 3]: # wednesday, thursday
             msg = self.team.next_msg()
             await self.channel.send(msg)
 
+        # ---------------------------------------------------------------------
         # chaser avaliability & paid
         if cur_day in [0, 2, 3]: # monday, wednesday, thursday
             
-            self.team.get_team_data(['availability', 'paid'], group_answers = True)
+            # -----------------------------------------------------------------
+            # Availability
+            self.team.get_team_data(['availability'], group_answers = True)
 
-            # chaser availability
-            upcoming_date = upcoming_date.strftime('%Y-%m-%d')
-            msg = self.team.availability_msg[upcoming_date]
-            
+            aval = self.team.availability[upcoming_date]
 
+            upcoming_match = self.fixtures.upcoming_date.strftime('%H:%M %Y-%m-%d')
 
-            # chaser paid
+            for resp, player_lst in aval.items():
+                if resp == 'yes':
+                    continue
 
+                for player in player_lst:
+                    # send message to player
+                    id = self.team.user_names[player]
+                    user = self.bot.get_user(id)
 
+                    msg = f"Hi {user.display_name},\n\n"
+                    msg += f"Please can you confirm your availability for the upcoming game on {upcoming_match}.\n"
+                    msg += f"Please respond with `!availability yes/no/maybe`\n\n"
 
+                    print(msg)
+                    # await user.send(msg)
 
+            # update meta data
+            self.meta['chasers']['avaliability']['last_attempt'] = dt.now()
 
+            # -----------------------------------------------------------------
+            # Paid
+            outstanding_dict = self.team.outstanding_dict()
 
+            for player, outstanding in outstanding_dict.items():
+                # send message to player
+                id = self.team.user_names[player]
+                user = self.bot.get_user(id)
+
+                msg = f"Hi {user.display_name},\n\n"
+                msg += f"You have a few outstanding weeks of payments {','.join(outstanding)}.\n"
+                msg += f"Please respond with `!paid yes date` to mark payment for a game date\n\n"
+
+                print(msg)
+                # await user.send(msg)
+
+            # update meta data
+            self.meta['chasers']['paid']['last_attempt'] = dt.now()
+
+        # ---------------------------------------------------------------------
         # motm
+        
+        # motm chase
+        if cur_day in [4, 5]: # friday, saturday
+            
+            for id, user in self.team.users.items():
+                vote = user.motm_vote.get(last_week, False)
 
+                if not vote:
+                    # send message to player
+                    user = self.bot.get_user(id)
+
+                    msg = f"Hi {user.display_name},\n\n"
+                    msg += f"Please can you vote for the MOTM for the game on {last_week}.\n"
+                    msg += f"Please respond with `!vote player`\n\n"
+
+                    print(msg)
+                    # await user.send(msg)
+
+            self.meta['chasers']['avaliability']['vote'] = dt.now()
+
+        # announce motm
+        if cur_day == 6:
+            # calc motm
+            self.team.calc_motm()
+            motm = self.team.motm[last_week]
+
+            # get max votes
+            max_votes = max(motm.values())
+            # get users with max votes
+            motm_player = [user for user, votes in motm.items() if votes == max_votes]
+
+            # send message to channel
+            if len(motm_player) == 1:
+                msg = f"Congratulations to {motm_player[0]} for winning MOTM for last weeks game.\n"
+            else:
+                msg = f"Congratulations to {', '.join(motm_player)} for winning MOTM for last weeks game.\n"
+                
+            print(msg)
+            #await self.channel.send(msg)
 
         
-
+        self.save_meta()
 
 
 

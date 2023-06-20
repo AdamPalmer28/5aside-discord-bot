@@ -19,7 +19,7 @@ class Team(commands.Cog):
 
         # create team data
 
-        answer_data = ['availability', 'paid', 'motm_vote', 'motm']
+        answer_data = ['availability', 'paid', 'vote', 'motm']
         self.get_team_data(answer_data, group_answers = True)
         self.get_team_data(['goal', 'assist'])
 
@@ -68,7 +68,21 @@ class Team(commands.Cog):
                             getattr(self, attr)[date] = {}
                         getattr(self, attr)[date][name] = answer
 
+    def calc_motm(self):
+        "Calc the MOTM for the previous game"
+        date = self.fixtures.previous_date
+        for id, user in self.team.items():
 
+            # check if user has voted
+            if date not in user.vote:
+                continue
+
+            # get vote
+            vote = user.vote[date]
+            # add vote to motm
+            self.motm[date][vote] = self.motm[date].get(vote, 0) + 1
+
+        self.save_team() # save data
 
     # =========================================================================
     # --------------------- Team commands -------------------------------------
@@ -129,17 +143,8 @@ class Team(commands.Cog):
     @commands.command()
     async def outstanding(self, ctx):
         "Check who has outstanding payments"
-        # get outstanding payments
-        outstanding = {} # Name: [dates]
-        self.get_team_data(['paid'], group_answers = True)
-
-        for date, val in self.paid.items():
-
-            if False in val:
-                for name in val[False]:
-                    if name not in outstanding:
-                        outstanding[name] = []
-                    outstanding[name].append(date)
+        
+        outstanding = self.outstanding_dict()
 
         # create message
         if len(outstanding) == 0:
@@ -210,15 +215,15 @@ class Team(commands.Cog):
     async def vote(self, ctx, *args):
         "Vote for motm"
         player, date = await self.args_player_date(ctx, args, 0, 1)
-        
-        if player == ctx.author.id:
-            await ctx.send('You cannot vote for yourself')
-            return
         if (player == False) or (date == False):
             return
         
-        # excute command
         display_name, id = player
+        if id == ctx.author.id:
+            await ctx.send('You cannot vote for yourself')
+            return
+        
+        # excute command
         user = self.team[str(id)]
 
         # check if user has already voted
@@ -297,11 +302,13 @@ class Team(commands.Cog):
             else:
                 # player is a date
                 exp_date_ind = exp_player_ind
-                player = [ctx.author.display_name, ctx.author.id] # assume user is calling command
+                display_name = self.users[str(ctx.author.id)]
+                player = [display_name, ctx.author.id] # assume user is calling command
             
         except IndexError:
-            # no player given - assume user is calling command
-            player = [ctx.author.display_name, ctx.author.id] 
+            # no player given - assume user is calling 
+            display_name = self.users[str(ctx.author.id)]
+            player = [display_name, ctx.author.id] 
 
         # Determine date
         # ---------------------------------------------------------------------
@@ -371,6 +378,21 @@ class Team(commands.Cog):
 
         return (next_info + '\n\n' + avaliable_msg + '\n\n' + opponent_form)
         
+    def outstanding_dict(self):
+        "Get the outstanding payments as a dictionary"
+        
+        outstanding = {} # Name: [dates]
+        self.get_team_data(['paid'], group_answers = True)
+
+        for date, val in self.paid.items():
+
+            if False in val:
+                for name in val[False]:
+                    if name not in outstanding:
+                        outstanding[name] = []
+                    outstanding[name].append(date)
+
+        return outstanding
         
     # =========================================================================
     # Import and exporting team data to json
@@ -400,6 +422,7 @@ class Team(commands.Cog):
 
         # id to user mapping
         self.users = {id: user.display_name for id, user in self.team.items()}
+        self.user_names = {user.display_name: id for id, user in self.team.items()}
 
 
     def save_team(self):
