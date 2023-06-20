@@ -42,9 +42,10 @@ def intialise(channel):
 
     fixtures = Fixtures(bot, path, channel) # fixtures class
     team = Team(bot, fixtures, path, channel) # team/user data
-    admin = AdminCmd(bot, team, fixtures) # admin commands
 
     scheduler = Scheduler(bot, meta, path, team, fixtures) # scheduler
+
+    admin = AdminCmd(bot, team, fixtures, scheduler) # admin commands
 
     return fixtures, team, admin
 
@@ -68,8 +69,7 @@ async def on_ready():
     await bot.add_cog(fixtures)
     await bot.add_cog(team)
 
-        # admin commands
-    admin = AdminCmd(bot, team, fixtures)
+    # admin commands
     await bot.add_cog(admin)
 
     admin.general_debug()

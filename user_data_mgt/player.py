@@ -12,7 +12,7 @@ class Player:
                 availability: dict = {},
                 paid: dict = {},
                 motm: dict = {},
-                motm_vote: list = {},
+                vote: list = {},
                  ):
 
         # player info
@@ -30,7 +30,7 @@ class Player:
 
         # motm
         self.motm = motm
-        self.motm_vote = motm_vote
+        self.vote = vote
 
 # =============================================================================
 

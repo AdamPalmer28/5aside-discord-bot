@@ -8,11 +8,12 @@ from discord.ext import commands
 
 class AdminCmd(commands.Cog):
 
-    def __init__(self, bot, team, fixtures):
+    def __init__(self, bot, team, fixtures, scheduler):
         self.bot = bot
 
         self.team = team
         self.fixtures = fixtures
+        self.scheduler = scheduler
 
         self.admin_users = [184737297734959104]
 
@@ -48,6 +49,13 @@ class AdminCmd(commands.Cog):
         if await self.check_user(ctx):
             response = await self.fixtures.extract_match_data()
             await ctx.channel.send(f"Fixtures refreshed: {response}")
+
+    @commands.command() 
+    async def run_schedule(self, ctx):
+        "Run schedule"
+        if await self.check_user(ctx):
+            await self.scheduler.routine()
+            print("Schedule run")
 
 
     # =========================================================================

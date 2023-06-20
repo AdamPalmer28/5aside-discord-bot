@@ -19,9 +19,9 @@ class Team(commands.Cog):
 
         # create team data
 
-        answer_data = ['availability', 'paid', 'vote', 'motm']
+        answer_data = ['availability', 'paid', 'vote']
         self.get_team_data(answer_data, group_answers = True)
-        self.get_team_data(['goal', 'assist'])
+        self.get_team_data(['goal', 'assist', 'motm'])
 
 
     # =========================================================================
@@ -70,6 +70,8 @@ class Team(commands.Cog):
 
     def calc_motm(self):
         "Calc the MOTM for the previous game"
+        self.get_team_data(['vote'])
+
         date = self.fixtures.previous_date
         for id, user in self.team.items():
 
@@ -212,7 +214,7 @@ class Team(commands.Cog):
 
 
     @commands.command()
-    async def vote(self, ctx, *args):
+    async def vote(self, ctx, *args): # ! bug voted user becomes user
         "Vote for motm"
         player, date = await self.args_player_date(ctx, args, 0, 1)
         if (player == False) or (date == False):
@@ -227,12 +229,15 @@ class Team(commands.Cog):
         user = self.team[str(id)]
 
         # check if user has already voted
-        result = user.motm_vote.get(date, False)
+        result = user.vote.get(date, False)
         if result:
             await ctx.send(f'You have already voted for {result}... I will change that for you')
         
-        user.motm_vote[date] = id # update figures
+        user.vote[date] = user.display_name # update figures
+
+        await ctx.send(f'You have voted for {display_name} for motm on {date}')
         self.save_team() # save data
+
         
     @commands.command()
     async def next(self, ctx):
@@ -414,7 +419,7 @@ class Team(commands.Cog):
                         paid = val['paid'],
                         goal = val['goal'],
                         assist = val['assist'],
-                        motm_vote = val['motm-vote'],
+                        vote = val['vote'],
                         motm = val['motm'],
                         )
             # add user to team
@@ -436,9 +441,8 @@ class Team(commands.Cog):
             data_out[id]['paid'] = val.paid
             data_out[id]['goal'] = val.goal
             data_out[id]['assist'] = val.assist
-            data_out[id]['motm-vote'] = val.motm_vote
+            data_out[id]['vote'] = val.vote
             data_out[id]['motm'] = val.motm
-
 
         with open(self.path + 'user_data/team_data.json', 'w') as f:
             json.dump(data_out, f, indent=4)
