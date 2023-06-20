@@ -18,7 +18,7 @@ def get_recent_thursday():
     upcoming = dt_now + timedelta(days = (7 if day == 3 else ((3 - day) % 7)) )
     last = dt_now + timedelta(days = - ((day - 3) % 7) )
 
-    return last, upcoming
+    return last, last.strftime('%Y-%m-%d'), upcoming, upcoming.strftime('%Y-%m-%d')
 
 
 class Scheduler(commands.Cog):
@@ -37,8 +37,11 @@ class Scheduler(commands.Cog):
         self.meta = meta
         self.extract_meta()
 
-        self.channel = bot.get_channel(self.meta['channel_id']['test'])
+        self.last_week_dt, self.last_week, self.upcoming_date_dt, \
+            self.upcoming_date = get_recent_thursday()
         
+        self.admin = self.bot.get_user( self.meta['admin_id'][0] )
+        self.channel = bot.get_channel(self.meta['channel_id']['test'])
 
         self.routine.start()
 
@@ -49,14 +52,15 @@ class Scheduler(commands.Cog):
     @tasks.loop(time = update_time)
     async def routine(self):
         "Run the routine of scheduled tasks"
+        self.extract_meta()
         cur_day = dt.now().weekday()
 
-        last_week, upcoming_date = get_recent_thursday()
+        self.last_week_dt, self.last_week, self.upcoming_date_dt, \
+            self.upcoming_date = get_recent_thursday()
 
         # ---------------------------------------------------------------------
         # fixture updates
-        if self.meta['fixtures_updates']['last_success'] < last_week + timedelta(days = 1):
-        
+        if self.meta['fixtures_updates']['last_success'] < self.last_week_dt + timedelta(days = 1):
             self.meta['fixtures_updates']['last_attempt'] = dt.now()
             if await self.fixtures.extract_match_data():
                 self.meta['fixtures_updates']['last_success'] = dt.now()
@@ -71,99 +75,22 @@ class Scheduler(commands.Cog):
         # chaser avaliability & paid
         if cur_day in [0, 2, 3]: # monday, wednesday, thursday
             
-            # -----------------------------------------------------------------
             # Availability
-            self.team.get_team_data(['availability'], group_answers = True)
+            await self.chase_availability()
 
-            upcoming_match = self.fixtures.upcoming_date.strftime('%H:%M %Y-%m-%d')
-
-            for id, user in self.team.team.items():
-                resp = user.availability.get(upcoming_date.strftime('%Y-%m-%d'), 'no')
-                if resp == 'yes':
-                    continue
-
-                # send message to player
-                dis_user = self.bot.get_user(id)
-
-                msg = f"Hi {user.display_name},\n\n"
-                msg += f"Please can you confirm your availability for the upcoming game on **{upcoming_match}**.\n"
-                msg += f"To update your avaliability type: `!availability yes/no/maybe`\n\n"
-
-                # print(msg)
-                # await dis_user.send(msg)
-
-            # update meta data
-            self.meta['chasers']['avaliability'] = dt.now()
-
-            # -----------------------------------------------------------------
             # Paid
-            outstanding_dict = self.team.outstanding_dict()
-
-            for player, outstanding in outstanding_dict.items():
-                # send message to player
-                id = self.team.user_names[player]
-                dis_user = self.bot.get_user(id)
-
-                msg = f"Hi {player},\n\n"
-                msg += f"You have a few outstanding weeks of payments {','.join(outstanding)}.\n"
-                msg += f"To update please type: `!paid yes date` to mark payment for a game date\n\n"
-
-                #print(msg)
-                # await dis_user.send(msg)
-
-            # update meta data
-            self.meta['chasers']['paid'] = dt.now()
+            await self.chase_paid()
 
         # ---------------------------------------------------------------------
         # motm
         
         # motm chase
         if cur_day in [4, 5]: # friday, saturday
-            
-            for id, user in self.team.team.items():
-                if user.availability.get(last_week.strftime('%Y-%m-%d'), 'no') != 'yes':
-                    continue
-                vote = user.vote.get(last_week.strftime('%Y-%m-%d'), False)
-                
-
-                if not vote:
-                    # send message to player
-                    dis_user = self.bot.get_user(id)
-
-                    msg = f"Hi {user.display_name},\n\n"
-                    msg += f"Please vote for the MOTM for last weeks game ({last_week.strftime('%Y-%m-%d')}).\n"
-                    msg += f"To vote type: `!vote player_name`\n\n"
-
-                    #print(msg)
-                    # await dis_user.send(msg)
-
-            self.meta['chasers']['vote'] = dt.now()
+            await self.chase_vote()
 
         # announce motm
-        cur_day = 6
         if cur_day == 6:
-            # calc motm
-            self.team.calc_motm()
-            motm = self.team.motm.get(last_week.strftime('%Y-%m-%d'), False)
-
-            if motm:
-
-                # get max votes
-                max_votes = max(motm.values())
-                # get users with max votes
-                motm_player = [user for user, votes in motm.items() if votes == max_votes]
-
-                # send message to channel
-                if len(motm_player) == 1:
-                    msg = f"Congratulations to {motm_player[0]} for winning MOTM for last weeks game.\n"
-                else:
-                    msg = f"Congratulations to {', '.join(motm_player)} for winning MOTM for last weeks game.\n"
-                    
-                print(msg)
-                #await self.channel.send(msg)
-            
-            else:
-                print('No MOTM votes')
+            await self.announce_motm()
 
         self.save_meta()
         
@@ -176,6 +103,104 @@ class Scheduler(commands.Cog):
         "Update data - after routine has finished"
         print('Routine finished')
 
+    # ------------------------------------------------------------------------
+    # routine functions
+
+    async def chase_availability(self):
+        "Chase availability for next game"
+        self.team.get_team_data(['availability'], group_answers = True)
+
+        upcoming_match = self.fixtures.upcoming_date.strftime('%H:%M %Y-%m-%d')
+
+        for id, user in self.team.team.items():
+            resp = user.availability.get(self.upcoming_date, 'no')
+            if resp == 'yes':
+                continue
+
+            # send message to player
+            dis_user = self.bot.get_user(id)
+
+            msg = f"Hi {user.display_name},\n\n"
+            msg += f"Please can you confirm your availability for the upcoming game on **{upcoming_match}**.\n"
+            msg += f"To update your avaliability type: `!availability yes/no/maybe`\n\n"
+
+            # print(msg)
+            # await dis_user.send(msg)
+
+        # update meta data
+        self.meta['chasers']['avaliability'] = dt.now()
+        
+
+    async def chase_paid(self):
+        "Chase paid for previous game"
+        outstanding_dict = self.team.outstanding_dict()
+
+        for player, outstanding in outstanding_dict.items():
+            # send message to player
+            id = self.team.user_names[player]
+            dis_user = self.bot.get_user(id)
+
+            msg = f"Hi {player},\n\n"
+            msg += f"You have a few outstanding weeks of payments {','.join(outstanding)}.\n"
+            msg += f"To update please type: `!paid yes date` to mark payment for a game date\n\n"
+
+            #print(msg)
+            # await dis_user.send(msg)
+
+        # update meta data
+        self.meta['chasers']['paid'] = dt.now()
+
+    async def chase_vote(self):
+        "Chase MOTM vote for previous game"
+        for id, user in self.team.team.items():
+            if user.availability.get(self.last_week, 'no') != 'yes':
+                continue
+            vote = user.vote.get(self.last_week, False)
+            
+
+            if not vote:
+                # send message to player
+                dis_user = self.bot.get_user(id)
+
+                msg = f"Hi {user.display_name},\n\n"
+                msg += f"Please vote for the MOTM for last weeks game ({self.last_week}).\n"
+                msg += f"To vote type: `!vote player_name`\n\n"
+
+                #print(msg)
+                # await dis_user.send(msg)
+
+        self.meta['chasers']['vote'] = dt.now()
+
+    async def announce_motm(self):
+        "Announce MOTM for previous game"
+
+        self.team.calc_motm()
+
+        motm = self.team.motm.get(self.last_week, False)
+
+        if motm:
+            # get max votes
+            max_votes = max(motm.values())
+            # get users with max votes
+            motm_player = [user for user, votes in motm.items() if votes == max_votes]
+            motm_id = [self.team.user_names[user] for user in motm_player]
+            # send message to channel
+            if len(motm_player) == 1:
+                msg = f"Congratulations to (<@{motm_id[0]}>) for winning MOTM for last weeks game.\n"
+            else:
+                motm_at = [f"<@{id}>" for id in motm_id]
+                msg = f"Congratulations to {', '.join(motm_player)} for winning MOTM for last weeks game. ({' '.join(motm_at)})\n"
+                
+            #print(msg)
+            await self.channel.send(msg)
+        
+        else:
+            print('No MOTM votes')
+        
+
+
+
+
     # =========================================================================
     # Extract meta data
     # =========================================================================
@@ -183,13 +208,10 @@ class Scheduler(commands.Cog):
     def extract_meta(self):
         "Extract meta data from the meta file"
 
-        self.channel_id = self.meta['channel_id']
-        self.admin = self.bot.get_user( self.meta['admin_id'][0] )
-
         for key in ['fixtures_updates', 'chasers']:
             for subkey, dt_str in self.meta[key].items():
                 # convert str to datetime
-                self.meta[key][subkey] = dt.strptime(dt_str, '%Y-%m-%d %H:%M:%S')
+                self.meta[key][subkey] = dt.strptime(str(dt_str), '%Y-%m-%d %H:%M:%S')
 
         self.fixtures_chase = self.meta.get('fixtures_updates')
         self.chasers = self.meta.get('chasers')

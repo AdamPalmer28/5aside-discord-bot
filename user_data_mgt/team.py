@@ -72,7 +72,8 @@ class Team(commands.Cog):
         "Calc the MOTM for the previous game"
         self.get_team_data(['vote'])
 
-        date = self.fixtures.previous_date
+        date = self.fixtures.previous_date.strftime('%Y-%m-%d')
+        self.motm[date] = {} # create motm dict
         for id, user in self.team.items():
 
             # check if user has voted
@@ -214,7 +215,7 @@ class Team(commands.Cog):
 
 
     @commands.command()
-    async def vote(self, ctx, *args): # ! bug voted user becomes user
+    async def vote(self, ctx, *args):
         "Vote for motm"
         player, date = await self.args_player_date(ctx, args, 0, 1)
         if (player == False) or (date == False):
@@ -225,15 +226,16 @@ class Team(commands.Cog):
             await ctx.send('You cannot vote for yourself')
             return
         
+        user = self.team[str(ctx.author.id)]
         # excute command
-        user = self.team[str(id)]
+        v_user = self.team[str(id)]
 
         # check if user has already voted
         result = user.vote.get(date, False)
         if result:
             await ctx.send(f'You have already voted for {result}... I will change that for you')
         
-        user.vote[date] = user.display_name # update figures
+        user.vote[date] = v_user.display_name # update figures
 
         await ctx.send(f'You have voted for {display_name} for motm on {date}')
         self.save_team() # save data

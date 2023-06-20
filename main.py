@@ -8,7 +8,7 @@ import os
 path = '//TRUENAS/Misc_storage/5aside_discord_bot/'
 TOKEN = open("//TRUENAS/Misc_storage/env_vars/discord.txt", "r").read()
 
-channel_id = 1112672147412893696
+channel_id = 1112672147412893696 #462411915839275009
 
 import discord
 from discord.ext import commands
@@ -25,7 +25,7 @@ with open(f'{path}meta_data.json', 'r') as f:
 
 # process meta data
 channels = meta['channel_id']
-channel_id = channels['test']
+channel_id = channels['test'] # ['live']
 admin = meta['admin_id'][0]
 
 # ------------------------------------------------------------

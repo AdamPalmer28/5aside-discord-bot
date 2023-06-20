@@ -36,9 +36,19 @@ class AdminCmd(commands.Cog):
                 await ctx.channel.send(self.bot.cogs)
              
         @self.bot.command()
-        async def test(ctx, arg):
+        async def test(ctx, *arg):
             if await self.check_user(ctx):
-                await ctx.channel.send(arg)
+                await ctx.channel.send(' '.join(arg))
+                await ctx.channel.send(f"<@{ctx.author.id}> test")
+
+        @self.bot.command()
+        async def msg_all(ctx, *arg):
+            "Message all team members"
+            if await self.check_user(ctx):
+
+                for id, user in self.team.team:
+                    dis_user = self.bot.get_user(id)
+                    await dis_user.send(arg)
 
     # =========================================================================
     # --------------------- General commands ----------------------------------
@@ -50,14 +60,45 @@ class AdminCmd(commands.Cog):
             response = await self.fixtures.extract_match_data()
             await ctx.channel.send(f"Fixtures refreshed: {response}")
 
+    # =========================================================================
+    # --------------------- Schedule commands ---------------------------------
+
     @commands.command() 
     async def run_schedule(self, ctx):
         "Run schedule"
         if await self.check_user(ctx):
             await self.scheduler.routine()
-            print("Schedule run")
+            
+            await ctx.channel.send("Schedule run")
 
 
+    @commands.command()
+    async def chase_aval(self, ctx):
+        "Chase avaliability"
+        if await self.check_user(ctx):
+            await self.scheduler.chase_availability()
+            await ctx.channel.send("Successfully run avaliability")
+
+    @commands.command()
+    async def chase_paid(self, ctx):
+        "Chase paid"
+        if await self.check_user(ctx):
+            await self.scheduler.chase_paid()
+            await ctx.channel.send("Successfully run paid")
+
+    @commands.command()
+    async def chase_vote(self, ctx):
+        "Chase voted"
+        if await self.check_user(ctx):
+            await self.scheduler.chase_vote()
+            await ctx.channel.send("Successfully run voted")
+
+    @commands.command()
+    async def announce_motm(self, ctx):
+        "Announce motm"
+        if await self.check_user(ctx):
+            await self.scheduler.announce_motm()
+            await ctx.channel.send("Successfully run motm announcement")
     # =========================================================================
     # --------------------- Fixture commands ----------------------------------
 
