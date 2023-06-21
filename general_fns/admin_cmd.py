@@ -65,7 +65,7 @@ class AdminCmd(commands.Cog):
             
             await ctx.channel.send("Schedule run")
 
-
+    # -------------------------------------------------------------------------
     @commands.command()
     async def chase_aval(self, ctx):
         "Chase avaliability"
@@ -93,6 +93,14 @@ class AdminCmd(commands.Cog):
         if await self.check_user(ctx):
             await self.scheduler.announce_motm()
             await ctx.channel.send("Successfully run motm announcement")
+
+    # -------------------------------------------------------------------------
+    @commands.command()
+    async def meta(self, ctx):
+        "Show meta data"
+        if await self.check_user(ctx):
+            await ctx.channel.send(self.scheduler.meta)
+
     # =========================================================================
     # --------------------- Fixture commands ----------------------------------
 

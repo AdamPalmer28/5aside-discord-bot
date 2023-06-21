@@ -156,7 +156,7 @@ class Fixtures(commands.Cog):
                         (self.match_data['Pending'] == False)].iloc[-5:]
         last5 = last5.sort_values(by='Datetime', ascending=False)
 
-        top_str = '__**Last 5 games:**__  '
+        top_str = '__**Last 5 games:**__     '
         form_str = '\n'
 
         for i, row in last5.iterrows():

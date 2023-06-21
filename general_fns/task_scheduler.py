@@ -94,9 +94,6 @@ class Scheduler(commands.Cog):
 
         self.save_meta()
         
-        
-
-
 
     @routine.after_loop
     async def update_datafiles(self):
@@ -124,7 +121,7 @@ class Scheduler(commands.Cog):
             msg += f"Please can you confirm your availability for the upcoming game on **{upcoming_match}**.\n"
             msg += f"To update your avaliability type: `!availability yes/no/maybe`\n\n"
 
-            # await dis_user.send(msg)
+            await dis_user.send(msg)
 
         # update meta data
         self.meta['chasers']['avaliability'] = dt.now()
@@ -143,7 +140,7 @@ class Scheduler(commands.Cog):
             msg += f"You have a few outstanding weeks of payments {', '.join(outstanding)}.\n"
             msg += f"To update please type: `!paid yes date` to mark payment for a game date\n\n"
           
-            # await dis_user.send(msg)
+            await dis_user.send(msg)
 
         # update meta data
         self.meta['chasers']['paid'] = dt.now()
@@ -165,7 +162,7 @@ class Scheduler(commands.Cog):
                 msg += f"To vote type: `!vote player_name`\n\n"
                 msg += f"MOTM will be announced **6pm Sunday**\n"
 
-                # await dis_user.send(msg)
+                await dis_user.send(msg)
 
         self.meta['chasers']['vote'] = dt.now()
 
@@ -188,16 +185,12 @@ class Scheduler(commands.Cog):
             else:
                 motm_at = [f"<@{id}>" for id in motm_id]
                 msg = f"Congratulations to {', '.join(motm_player)} for winning MOTM for last weeks game. ({' '.join(motm_at)})\n"
-                
-            #print(msg)
+
+
             await self.channel.send(msg)
         
         else:
             print('No MOTM votes')
-        
-
-
-
 
     # =========================================================================
     # Extract meta data

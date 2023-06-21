@@ -170,7 +170,7 @@ class Team(commands.Cog):
         num_goals = args[0]
         num_goals = self.check_int(num_goals)
 
-        if not num_goals:
+        if type(num_goals) != int:
             await ctx.send(f'Goals must be an integer - you entered {num_goals}')
             return
         if (player == False) or (date == False):
@@ -196,7 +196,7 @@ class Team(commands.Cog):
         num_assists = args[0]
 
         num_assists = self.check_int(num_assists)
-        if not num_assists:
+        if type(num_assists) != int:
             await ctx.send(f'Assists must be an integer - you entered {num_assists}')
             return
         if (player == False) or (date == False):
@@ -361,7 +361,7 @@ class Team(commands.Cog):
     def check_int(self, num):
         "Check if number is an integer"
         try:
-            return num
+            return int(num)
         except ValueError:
             return False
         
@@ -384,6 +384,8 @@ class Team(commands.Cog):
 
         if len(no_response) > 0:
             avaliable_msg += f'No response: {", ".join(no_response)}'
+
+        opponent_form = f'__**Opponent - **__{opponent_form}'
 
         return (next_info + '\n\n' + avaliable_msg + '\n\n' + opponent_form)
         
