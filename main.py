@@ -3,12 +3,14 @@ Driver file for the discord bot
 """
 # ============================================================
 import os
-#TOKEN = os.environ.get('discord_token')
 
-path = '//TRUENAS/Misc_storage/5aside_discord_bot/'
-TOKEN = open("//TRUENAS/Misc_storage/env_vars/discord.txt", "r").read()
+TOKEN = os.environ.get('discord_token')
+path = os.environ.get('discord_bot_path')
+channel_key = os.environ.get('discord_channel_key')
 
-channel_id = 1112672147412893696 #462411915839275009
+# path = '//TRUENAS/Misc_storage/5aside_discord_bot/'
+# TOKEN = open("//TRUENAS/Misc_storage/env_vars/discord.txt", "r").read()
+# channel_key = 'test'
 
 import discord
 from discord.ext import commands
@@ -25,7 +27,7 @@ with open(f'{path}meta_data.json', 'r') as f:
 
 # process meta data
 channels = meta['channel_id']
-channel_id = channels['test'] # ['live']
+channel_id = channels[channel_key]
 admin = meta['admin_id'][0]
 
 # ------------------------------------------------------------
@@ -58,9 +60,8 @@ async def on_ready():
 
     gen_channel = bot.get_channel(462411915839275009)
 
-    test_channel = bot.get_channel(1112672147412893696)
-    #await test_channel.send("Bot Started")
-    channel = test_channel
+    #test_channel = bot.get_channel(1112672147412893696)
+    channel = bot.get_channel(channel_id)
 
     # ------------------------------------------------------
     # Instantiate classes

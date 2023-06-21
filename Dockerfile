@@ -1,17 +1,17 @@
-#FROM python
-FROM continuumio/miniconda3
+FROM python
+#FROM continuumio/miniconda3
+
+# install dependencies
+RUN pip install discord.py pandas requests bs4
 
 # Path: /app
 WORKDIR /app
 
-#ENV discord_token = {$token}
-COPY . .
+ENV discord_token=$TOKEN
+ENV discord_channel_key=$CHANNEL
+ENV discord_bot_path=$PATH
 
-# Create a new Conda environment and install packages
-RUN conda env create -f environment.yml
-# Activate the Conda environment
-RUN echo "source activate <environment_name>" > ~/.bashrc
-ENV PATH /opt/conda/envs/<environment_name>/bin:$PATH
+COPY . .
 
 
 # run main.py

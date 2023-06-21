@@ -5,6 +5,7 @@ Commands can only be used by admin users.
 """
 
 from discord.ext import commands
+import os
 
 class AdminCmd(commands.Cog):
 
@@ -53,6 +54,12 @@ class AdminCmd(commands.Cog):
         if await self.check_user(ctx):
             response = await self.fixtures.extract_match_data()
             await ctx.channel.send(f"Fixtures refreshed: {response}")
+
+    @commands.command()
+    async def showls(self, ctx):
+        "Show directory"
+        if await self.check_user(ctx):
+            await ctx.channel.send(os.listdir())
 
     # =========================================================================
     # --------------------- Schedule commands ---------------------------------
