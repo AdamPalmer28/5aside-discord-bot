@@ -280,7 +280,9 @@ class Team(commands.Cog):
         if str(ctx.author.id) not in self.team.keys(): # check user is part of team
             await ctx.send(f'You are not part of the team - please contact an admin')
             return False, False
-
+        
+        self.fixtures.get_fixture_info() 
+        
         def check_player_date(player):
             "Helper - Check if player is a date"
             try:

@@ -24,7 +24,7 @@ def user_help(bot):
         '__**Player stats**__',
         '!goal  number   -   (optional inputs)', 
         '!assist  number  -   (optional inputs)',
-        '!vote  player   -   vote motm for a player',
+        '!vote  player   -   vote motm player',
         '',
         "**Optional inputs** - *player and game_date are optional inputs, if not provide it presume you are the player and game_date is more relevant date*",
         '',

@@ -29,18 +29,12 @@ class AdminCmd(commands.Cog):
     # =========================================================================
     def general_debug(self):
         "General debugging commands"
-
-        @self.bot.command()
-        async def cogs(ctx):
-            if await self.check_user(ctx):
-                await ctx.channel.send(self.bot.cogs)
              
         @self.bot.command()
         async def test(ctx, *arg):
             if await self.check_user(ctx):
                 await ctx.channel.send(' '.join(arg))
-                await ctx.channel.send(f"<@{ctx.author.id}> test")
-
+                
         @self.bot.command()
         async def msg_all(ctx, *arg):
             "Message all team members"
@@ -48,7 +42,7 @@ class AdminCmd(commands.Cog):
 
                 for id, user in self.team.team:
                     dis_user = self.bot.get_user(id)
-                    await dis_user.send(arg)
+                    await dis_user.send(' '.join(arg))
 
     # =========================================================================
     # --------------------- General commands ----------------------------------
@@ -118,6 +112,7 @@ class AdminCmd(commands.Cog):
 
     @commands.command()
     async def save_team(self, ctx):
+        "Saves user config"
         if await self.check_user(ctx):
             self.team.save_team()
             await ctx.channel.send("Team saved")

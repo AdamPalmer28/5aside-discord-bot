@@ -124,7 +124,6 @@ class Scheduler(commands.Cog):
             msg += f"Please can you confirm your availability for the upcoming game on **{upcoming_match}**.\n"
             msg += f"To update your avaliability type: `!availability yes/no/maybe`\n\n"
 
-            # print(msg)
             # await dis_user.send(msg)
 
         # update meta data
@@ -141,10 +140,9 @@ class Scheduler(commands.Cog):
             dis_user = self.bot.get_user(id)
 
             msg = f"Hi {player},\n\n"
-            msg += f"You have a few outstanding weeks of payments {','.join(outstanding)}.\n"
+            msg += f"You have a few outstanding weeks of payments {', '.join(outstanding)}.\n"
             msg += f"To update please type: `!paid yes date` to mark payment for a game date\n\n"
-
-            #print(msg)
+          
             # await dis_user.send(msg)
 
         # update meta data
@@ -163,10 +161,10 @@ class Scheduler(commands.Cog):
                 dis_user = self.bot.get_user(id)
 
                 msg = f"Hi {user.display_name},\n\n"
-                msg += f"Please vote for the MOTM for last weeks game ({self.last_week}).\n"
+                msg += f"Please vote for the **MOTM** for last weeks game ({self.last_week}).\n"
                 msg += f"To vote type: `!vote player_name`\n\n"
+                msg += f"MOTM will be announced **6pm Sunday**\n"
 
-                #print(msg)
                 # await dis_user.send(msg)
 
         self.meta['chasers']['vote'] = dt.now()
