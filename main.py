@@ -4,10 +4,12 @@ Driver file for the discord bot
 # ============================================================
 import os
 
-TOKEN = os.environ.get('discord_token')
-path = os.environ.get('discord_bot_path')
-channel_key = os.environ.get('discord_channel_key')
+TOKEN = os.environ.get('token')
+path = os.environ.get('path')
+channel_key = os.environ.get('channel')
 
+print(os.listdir('data/'))
+print(TOKEN, path, channel_key)
 # path = '//TRUENAS/Misc_storage/5aside_discord_bot/'
 # TOKEN = open("//TRUENAS/Misc_storage/env_vars/discord.txt", "r").read()
 # channel_key = 'test'
