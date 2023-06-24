@@ -96,7 +96,7 @@ class Team(commands.Cog):
         "mark availability for a given game"
         resp = args[0].lower()
 
-        player, date = await self.args_player_date(ctx, args, 1, 2)
+        player, date = await self.args_player_date(ctx, args, 1, 2, prev_date=False)
         
         # check arguments
         if resp not in ['yes', 'y', 'no', 'n', 'maybe']:
@@ -114,7 +114,7 @@ class Team(commands.Cog):
         user.availability[date] = resp # update figures
 
         # add default paid response
-        user.paid[date] = user.paid.get(date, 'no')
+        user.paid[date] = user.paid.get(date, False)
 
         self.save_team() # save data
 
@@ -138,6 +138,8 @@ class Team(commands.Cog):
         user = self.team[str(id)]
 
         await ctx.send(f'Set {user.display_name} to paid status to: {resp} for game on {date}')
+
+        resp = True if resp == 'yes' else False
         user.paid[date] = resp # update figures
 
         self.save_team() # save data

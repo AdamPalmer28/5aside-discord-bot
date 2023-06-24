@@ -24,7 +24,7 @@ def fixture_data_format(data):
 
 
 async def check_new_fixture_data(new_data: pd.DataFrame, old_data: pd.DataFrame, 
-                                 path: str, bot, channel_id):
+                                 path: str, bot, channel):
     """
     Function to update the fixture data with new data from the latest website scrape.
     There are 3 cases which can occur:

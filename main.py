@@ -58,7 +58,7 @@ async def on_ready():
     # Start up messages
     print(f'{bot.user} has connected to Discord!')
 
-    gen_channel = bot.get_channel(462411915839275009)
+    gen_channel = bot.get_channel(channel_id)
 
     #test_channel = bot.get_channel(1112672147412893696)
     channel = bot.get_channel(channel_id)
