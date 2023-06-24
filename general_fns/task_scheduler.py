@@ -158,7 +158,7 @@ class Scheduler(commands.Cog):
                 dis_user = self.bot.get_user(int(id))
 
                 msg = f"Hi {user.display_name},\n\n"
-                msg += f"Please vote for the **MOTM** for last weeks game ({self.last_week}).\n"
+                msg += f"Please vote for the **MOTM** for last week's game ({self.last_week}).\n"
                 msg += f"To vote type: `!vote player_name`\n\n"
                 msg += f"MOTM will be announced **6pm Sunday**\n"
 

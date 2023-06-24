@@ -388,7 +388,7 @@ class Team(commands.Cog):
         if len(no_response) > 0:
             avaliable_msg += f'\nNo response: {", ".join(no_response)}'
 
-        opponent_form = f'__**Opponent - **__{opponent_form}'
+        opponent_form = f"Opponent's {opponent_form}"
 
         return (next_info + '\n\n' + avaliable_msg + '\n\n' + opponent_form)
         
