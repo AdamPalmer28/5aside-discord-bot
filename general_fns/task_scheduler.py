@@ -115,7 +115,7 @@ class Scheduler(commands.Cog):
                 continue
 
             # send message to player
-            dis_user = self.bot.get_user(id)
+            dis_user = self.bot.get_user(int(id))
 
             msg = f"Hi {user.display_name},\n\n"
             msg += f"Please can you confirm your availability for the upcoming game on **{upcoming_match}**.\n"
@@ -134,7 +134,7 @@ class Scheduler(commands.Cog):
         for player, outstanding in outstanding_dict.items():
             # send message to player
             id = self.team.user_names[player]
-            dis_user = self.bot.get_user(id)
+            dis_user = self.bot.get_user(int(id))
 
             msg = f"Hi {player},\n\n"
             msg += f"You have a few outstanding weeks of payments {', '.join(outstanding)}.\n"
@@ -155,7 +155,7 @@ class Scheduler(commands.Cog):
 
             if not vote:
                 # send message to player
-                dis_user = self.bot.get_user(id)
+                dis_user = self.bot.get_user(int(id))
 
                 msg = f"Hi {user.display_name},\n\n"
                 msg += f"Please vote for the **MOTM** for last weeks game ({self.last_week}).\n"

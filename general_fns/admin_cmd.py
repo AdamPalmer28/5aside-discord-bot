@@ -41,8 +41,10 @@ class AdminCmd(commands.Cog):
             "Message all team members"
             if await self.check_user(ctx):
 
-                for id, user in self.team.team:
-                    dis_user = self.bot.get_user(id)
+                for id, user in self.team.team.items():
+                    dis_user = self.bot.get_user(int(id))
+                    
+
                     await dis_user.send(' '.join(arg))
 
     # =========================================================================
