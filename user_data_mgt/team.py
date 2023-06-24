@@ -246,6 +246,7 @@ class Team(commands.Cog):
     @commands.command()
     async def next(self, ctx):
         "Show the next game date and time and the recent form of the opponent"
+        self.get_team_data(['availability'], group_answers = True)
         msg = self.next_msg()
         await ctx.channel.send(msg)
 
@@ -372,7 +373,7 @@ class Team(commands.Cog):
         next_info, opponent_form, date = self.fixtures.next_game_info()
 
         # avaliablity of players
-        avaliable_msg = '__**Team avaliability**__:\n'
+        avaliable_msg = '__**Team avaliability**__:\n\n'
         cur_team = self.availability.get(date, {})
 
         for response, players in cur_team.items():
@@ -385,7 +386,7 @@ class Team(commands.Cog):
                 no_response.append(user.display_name)
 
         if len(no_response) > 0:
-            avaliable_msg += f'No response: {", ".join(no_response)}'
+            avaliable_msg += f'\nNo response: {", ".join(no_response)}'
 
         opponent_form = f'__**Opponent - **__{opponent_form}'
 
