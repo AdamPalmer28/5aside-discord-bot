@@ -41,7 +41,7 @@ class Scheduler(commands.Cog):
             self.upcoming_date = get_recent_thursday()
         
         self.admin = self.bot.get_user( self.meta['admin_id'][0] )
-        self.channel = bot.get_channel(self.meta['channel_id']['test'])
+        self.channel = bot.get_channel(self.meta['channel_id']['live'])
 
         self.routine.start()
 
