@@ -47,7 +47,7 @@ class Team(commands.Cog):
                     # loop through user data (dates)
                     
                     # ? not sure if this is needed
-                    if (attr == 'paid') & (user.availability.get([date], 'no') == 'no'): 
+                    if (attr == 'paid') & (user.availability.get(date, 'no') == 'no'): 
                         # if user is not avaliable, skip
                         continue
 

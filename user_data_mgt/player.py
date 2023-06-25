@@ -91,20 +91,22 @@ def player_stats(team, results, team_name = 'Earth Wind and Maguire'):
     # make final stats table
     df = DataFrame({'Name': name,
                     'played': played,
-                    'motm': motm,
                     'won': won,
                     'draw': draw,
                     'lost': lost,
-                    'goals': goals,
-                    'assists': assists,
-                    'avg_gf': avg_gf,
-                    'avg_ga': avg_ga,
+                    #'avg_gf': avg_gf,
+                    #'avg_ga': avg_ga,
                     'avg_gd': avg_gd,
-                    'avg_pts': avg_pts,
+                    #'avg_pts': avg_pts,
+                    'assists': assists,
+                    'goals': goals,
+                    'motm': motm,
                     })
     
     # round columns: avg_gf, avg_ga, avg_gd, avg_pts
-    df = df.round({'avg_gf': 1, 'avg_ga': 1, 'avg_gd': 1, 'avg_pts': 1})
+    #df = df.round({'avg_gf': 1, 'avg_ga': 1, 'avg_gd': 1, 'avg_pts': 1})
+    df = df.round({'avg_gd': 1})
+
     return df
 
 
