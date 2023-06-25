@@ -47,7 +47,7 @@ class Team(commands.Cog):
                     # loop through user data (dates)
                     
                     # ? not sure if this is needed
-                    if (attr == 'paid') & (user.availability[date] == 'no'): 
+                    if (attr == 'paid') & (user.availability.get([date], 'no') == 'no'): 
                         # if user is not avaliable, skip
                         continue
 
@@ -137,7 +137,7 @@ class Team(commands.Cog):
         display_name, id = player
         user = self.team[str(id)]
 
-        await ctx.send(f'Set {user.display_name} to paid status to: {resp} for game on {date}')
+        await ctx.send(f'Set {user.display_name} paid status to: {resp} for game on {date}')
 
         resp = True if resp == 'yes' else False
         user.paid[date] = resp # update figures
