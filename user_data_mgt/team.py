@@ -158,7 +158,7 @@ class Team(commands.Cog):
 
         msg = 'The following people have outstanding payments:\n'
         for name, dates in outstanding.items():
-            msg += f'**{name}** - {len(dates)} games - {dates}\n'
+            msg += f'**{name}** - {len(dates)} games - {(", ".join(dates))}\n'
             
         await ctx.send(msg)
         return

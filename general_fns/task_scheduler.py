@@ -78,6 +78,7 @@ class Scheduler(commands.Cog):
             # Availability
             await self.chase_availability()
 
+        if cur_day in [4, 6, 1]: # saturday, sunday, tuesday
             # Paid
             await self.chase_paid()
 
