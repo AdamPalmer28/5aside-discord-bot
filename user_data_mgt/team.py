@@ -85,6 +85,14 @@ class Team(commands.Cog):
             # add vote to motm
             self.motm[date][vote] = self.motm[date].get(vote, 0) + 1
 
+        # update users motm winners 
+        top_votes = max(self.motm[date].values())
+
+        for name, votes in self.motm[date].items():
+            id = self.user_names[name]
+            if votes == top_votes:
+                self.team[id].motm[date] = votes
+
         self.save_team() # save data
 
     # =========================================================================

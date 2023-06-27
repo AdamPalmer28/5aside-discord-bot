@@ -70,7 +70,7 @@ def player_stats(team, results, team_name = 'Earth Wind and Maguire'):
     name, played, won, lost, draw, goals, assists = [], [], [], [], [], [], []
     motm, avg_gf, avg_ga, avg_gd, avg_pts = [], [], [], [], []
 
-    for ic, user in team.items():
+    for id, user in team.items():
         name.append(user.display_name)
 
         w, l, d, g, a, = get_pwld(user.availability)
