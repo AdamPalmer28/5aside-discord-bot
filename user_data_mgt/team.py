@@ -102,7 +102,10 @@ class Team(commands.Cog):
     @commands.command()
     async def available(self, ctx, *args):
         "mark availability for a given game"
-        resp = args[0].lower()
+        try:
+            resp = args[0].lower()
+        except IndexError:
+            resp = 'yes'
 
         player, date = await self.args_player_date(ctx, args, 1, 2, prev_date=False)
         
