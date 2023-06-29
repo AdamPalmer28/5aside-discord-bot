@@ -47,7 +47,7 @@ class Team(commands.Cog):
                     # loop through user data (dates)
                     
                     # ? not sure if this is needed
-                    if (attr == 'paid') & (user.availability[date] == 'no'): 
+                    if (attr == 'paid') & (user.availability.get(date, 'no') == 'no'): 
                         # if user is not avaliable, skip
                         continue
 
@@ -85,6 +85,14 @@ class Team(commands.Cog):
             # add vote to motm
             self.motm[date][vote] = self.motm[date].get(vote, 0) + 1
 
+        # update users motm winners 
+        top_votes = max(self.motm[date].values())
+
+        for name, votes in self.motm[date].items():
+            id = self.user_names[name]
+            if votes == top_votes:
+                self.team[id].motm[date] = votes
+
         self.save_team() # save data
 
     # =========================================================================
@@ -94,7 +102,10 @@ class Team(commands.Cog):
     @commands.command()
     async def available(self, ctx, *args):
         "mark availability for a given game"
-        resp = args[0].lower()
+        try:
+            resp = args[0].lower()
+        except IndexError:
+            resp = 'yes'
 
         player, date = await self.args_player_date(ctx, args, 1, 2, prev_date=False)
         
@@ -137,7 +148,7 @@ class Team(commands.Cog):
         display_name, id = player
         user = self.team[str(id)]
 
-        await ctx.send(f'Set {user.display_name} to paid status to: {resp} for game on {date}')
+        await ctx.send(f'Set {user.display_name} paid status to: {resp} for game on {date}')
 
         resp = True if resp == 'yes' else False
         user.paid[date] = resp # update figures

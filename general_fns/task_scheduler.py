@@ -78,7 +78,7 @@ class Scheduler(commands.Cog):
             # Availability
             await self.chase_availability()
 
-        if cur_day in [4, 6, 1]: # saturday, sunday, tuesday
+        if cur_day in [4, 6]: # Friday, Sunday
             # Paid
             await self.chase_paid()
 
@@ -123,7 +123,7 @@ class Scheduler(commands.Cog):
 
             msg = f"Hi {user.display_name},\n\n"
             msg += f"Please can you confirm your availability for the upcoming game on **{upcoming_match}**.\n"
-            msg += f"To update your avaliability type: `!availability yes/no/maybe`\n\n"
+            msg += f"To update your availability type: `!available yes/no/maybe`\n\n"
 
             await dis_user.send(msg)
 
