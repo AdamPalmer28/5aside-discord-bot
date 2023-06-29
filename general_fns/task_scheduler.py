@@ -73,7 +73,7 @@ class Scheduler(commands.Cog):
 
         # ---------------------------------------------------------------------
         # chaser avaliability & paid
-        if cur_day in [0, 2, 3]: # monday, wednesday, thursday
+        if cur_day in [0, 2]: # monday, wednesday, thursday
             
             # Availability
             await self.chase_availability()
@@ -111,7 +111,10 @@ class Scheduler(commands.Cog):
         upcoming_match = self.fixtures.upcoming_date.strftime('%H:%M %Y-%m-%d')
 
         for id, user in self.team.team.items():
-            resp = user.availability.get(self.upcoming_date, 'no')
+
+            date = self.last_week if (dt.time() < self.last_week_dt) else self.upcoming_date
+
+            resp = user.availability.get(date, 'no')
             if resp == 'yes':
                 continue
 
@@ -180,9 +183,10 @@ class Scheduler(commands.Cog):
             # get users with max votes
             motm_player = [user for user, votes in motm.items() if votes == max_votes]
             motm_id = [self.team.user_names[user] for user in motm_player]
+            winner = self.team.team[int(motm_player[0])].display_name
             # send message to channel
             if len(motm_player) == 1:
-                msg = f"Congratulations to (<@{motm_id[0]}>) for winning MOTM for last weeks game.\n"
+                msg = f"Congratulations to {winner} (<@{motm_id[0]}>) for winning MOTM for last weeks game.\n"
             else:
                 motm_at = [f"<@{id}>" for id in motm_id]
                 msg = f"Congratulations to {', '.join(motm_player)} for winning MOTM for last weeks game. ({' '.join(motm_at)})\n"
