@@ -60,7 +60,6 @@ async def check_new_fixture_data(new_data: pd.DataFrame, old_data: pd.DataFrame,
 
         results = new_results[['Time','Home','Home score','Away score','Away']]
         await channel.send(f'```{results.to_string(index=False)}```')
-        
 
 
         # case 2.1: new team

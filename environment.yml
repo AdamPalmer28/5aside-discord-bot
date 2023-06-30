@@ -1,0 +1,42 @@
+name: discord_new
+channels:
+  - defaults
+dependencies:
+  - bzip2=1.0.8
+  - ca-certificates=2023.05.30
+  - libffi=3.4.4
+  - openssl=3.0.8
+  - pip=23.1.2
+  - python=3.11.3
+  - setuptools=67.8.0
+  - sqlite=3.41.2
+  - tk=8.6.12
+  - vc=14.2
+  - vs2015_runtime=14.27.29016
+  - wheel=0.38.4
+  - xz=5.4.2
+  - zlib=1.2.13
+  - pip:
+    - aiohttp==3.8.4
+    - aiosignal==1.3.1
+    - async-timeout==4.0.2
+    - attrs==23.1.0
+    - beautifulsoup4==4.12.2
+    - bs4==0.0.1
+    - certifi==2023.5.7
+    - charset-normalizer==3.1.0
+    - discord-py==2.3.0
+    - frozenlist==1.3.3
+    - idna==3.4
+    - multidict==6.0.4
+    - numpy==1.25.0
+    - pandas==2.0.2
+    - python-dateutil==2.8.2
+    - pytz==2023.3
+    - requests==2.31.0
+    - six==1.16.0
+    - soupsieve==2.4.1
+    - tzdata==2023.3
+    - urllib3==2.0.3
+    - yarl==1.9.2
+prefix: C:\Users\Adam\anaconda3\envs\discord_new

@@ -75,13 +75,26 @@ class Fixtures(commands.Cog):
             # update data
             if case == 1:
                 # new season
-                self.channel.send("ANew season")
+                self.channel.send("")
+
+                # send league table
+                await self.channel.send('__**New season**__\n')
+                await self.channel.send('Last season results:\n')
+                await self.channel.send('```' + self.league_table.to_string(index=False) + '```')
 
 
             self.match_data = new_data_org
             new_data_org.to_csv(f'{self.path}/league_data/fixtures.csv', index=False)
 
             self.analyse_match_data()
+
+            # send league table
+            if case == 2:
+                await self.channel.send('Updated league table:\n')
+                await self.channel.send('```' + self.league_table.to_string(index=False) + '```')
+
+
+
             return True
     # -------------------------------------------------------------------------   
     # Commands

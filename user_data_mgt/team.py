@@ -132,12 +132,16 @@ class Team(commands.Cog):
     @commands.command()
     async def paid(self, ctx, *args):
         "Check who has paid for a given game"
-        resp = args[0].lower()
+        try:
+            resp = args[0].lower()
+        except IndexError:
+            resp = 'yes'
+            
         player, date = await self.args_player_date(ctx, args, 1, 2)
 
         # check arguments
         if resp not in ['yes', 'y', 'no', 'n']:
-            await ctx.send(f"Response must be 'yes' or 'no' - you entered {resp}")
+            await ctx.send(f"Response must be '!paid yes' or '!paid no' - you entered {resp}")
             return
         if (player == False) or (date == False):
             return
