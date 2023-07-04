@@ -112,7 +112,7 @@ class Scheduler(commands.Cog):
 
         for id, user in self.team.team.items():
 
-            date = self.last_week if (dt.time() < self.last_week_dt) else self.upcoming_date
+            date = self.last_week if (dt.now() < self.last_week_dt) else self.upcoming_date
 
             resp = user.availability.get(date, 'no')
             if resp == 'yes':
