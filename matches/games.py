@@ -54,8 +54,14 @@ class Fixtures(commands.Cog):
         """
         Upcoming and previous fixture dates YYYY-MM-DD
         """
-        self.upcoming_date = self.our_games.loc[(self.our_games['Datetime'] >= dt.now()),'Datetime'].iloc[0]
         self.previous_date = self.our_games.loc[(self.our_games['Datetime'] < dt.now()),'Datetime'].iloc[-1]
+        
+        upcoming_data = self.our_games.loc[(self.our_games['Datetime'] >= dt.now())]
+
+        if len(upcoming_data) == 0:
+            self.upcoming_date = self.previous_date + pd.Timedelta(days=7)
+        else:
+            self.upcoming_date = upcoming_data.iloc[0]
 
     async def extract_match_data(self):
         "Extract new match data"
