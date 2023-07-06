@@ -60,21 +60,16 @@ class Scheduler(commands.Cog):
 
         # ---------------------------------------------------------------------
         # fixture updates
-        if self.meta['fixtures_updates']['last_success'] < self.last_week_dt + timedelta(days = 1):
-            self.meta['fixtures_updates']['last_attempt'] = dt.now()
-            if await self.fixtures.extract_match_data():
-                self.meta['fixtures_updates']['last_success'] = dt.now()
+        await self.fixtures_update()
 
         # ---------------------------------------------------------------------
         # next match info
         if cur_day in [2, 3]: # wednesday, thursday
-            msg = self.team.next_msg()
-            await self.channel.send(msg)
+            await self.next_match_info()
 
         # ---------------------------------------------------------------------
         # chaser avaliability & paid
         if cur_day in [0, 2]: # monday, wednesday
-            
             # Availability
             await self.chase_availability()
 
@@ -84,8 +79,6 @@ class Scheduler(commands.Cog):
 
         # ---------------------------------------------------------------------
         # motm
-        
-        # motm chase
         if cur_day in [4, 5]: # friday, saturday
             await self.chase_vote()
 
@@ -101,9 +94,40 @@ class Scheduler(commands.Cog):
         "Update data - after routine has finished"
         print('Routine finished')
 
-    # ------------------------------------------------------------------------
+    # =========================================================================
     # routine functions
 
+    def routine_function(func):
+        "Decordator for routine functions which trys and sends error message"
+        async def wrapper(self, *args, **kwargs):
+            try:
+                val = await function(self, *args, **kwargs)
+            except Exception as e:
+                await self.admin.send(f"Error in routine function: {func.__name__}\n{e}")
+
+            return val
+        return wrapper
+
+    # -------------------------------------------------------------------------
+
+    @routine_function
+    async def next_match_info(self):
+        "Send next match info"
+        msg = self.team.next_msg()
+        await self.channel.send(msg)
+
+
+    @routine_function
+    async def fixtures_update(self):
+        "Update fixtures"
+        if self.meta['fixtures_updates']['last_success'] < self.last_week_dt + timedelta(days = 1):
+
+            self.meta['fixtures_updates']['last_attempt'] = dt.now()
+            if await self.fixtures.extract_match_data():
+                self.meta['fixtures_updates']['last_success'] = dt.now()
+
+
+    @routine_function
     async def chase_availability(self):
         "Chase availability for next game"
         self.team.get_team_data(['availability'], group_answers = True)
@@ -131,6 +155,7 @@ class Scheduler(commands.Cog):
         self.meta['chasers']['avaliability'] = dt.now()
         
 
+    @routine_function
     async def chase_paid(self):
         "Chase paid for previous game"
         outstanding_dict = self.team.outstanding_dict()
@@ -149,6 +174,8 @@ class Scheduler(commands.Cog):
         # update meta data
         self.meta['chasers']['paid'] = dt.now()
 
+
+    @routine_function
     async def chase_vote(self):
         "Chase MOTM vote for previous game"
         for id, user in self.team.team.items():
@@ -170,6 +197,8 @@ class Scheduler(commands.Cog):
 
         self.meta['chasers']['vote'] = dt.now()
 
+
+    @routine_function
     async def announce_motm(self):
         "Announce MOTM for previous game"
 
@@ -207,7 +236,7 @@ class Scheduler(commands.Cog):
         for key in ['fixtures_updates', 'chasers']:
             for subkey, dt_str in self.meta[key].items():
                 # convert str to datetime
-                self.meta[key][subkey] = dt.strptime(str(dt_str), '%Y-%m-%d %H:%M:%S')
+                self.meta[key][subkey] = dt.strptime(str(dt_str.replace(microsecond=0)), '%Y-%m-%d %H:%M:%S')
 
         self.fixtures_chase = self.meta.get('fixtures_updates')
         self.chasers = self.meta.get('chasers')
