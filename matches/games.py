@@ -56,6 +56,7 @@ class Fixtures(commands.Cog):
         """
         self.previous_date = self.our_games.loc[(self.our_games['Datetime'] < dt.now()),'Datetime'].iloc[-1]
         
+
         upcoming_data = self.our_games.loc[(self.our_games['Datetime'] >= dt.now())]
 
         if len(upcoming_data) == 0:
@@ -150,6 +151,10 @@ class Fixtures(commands.Cog):
         """
         # get next game
         upcoming_games = self.our_games.loc[(self.our_games['Datetime'] >= dt.now())]
+
+        if len(upcoming_games) == 0:
+            return 'Unknown next match info - possible new season', '', ''
+
         next_game = upcoming_games.iloc[0]
 
 
@@ -170,9 +175,12 @@ class Fixtures(commands.Cog):
         Return the string summary message of a team's last 5 games
         """
         # get the last 5 games
-        last5 = self.match_data[((self.match_data['Home'] == teamname) |\
+
+        games = self.match_data[((self.match_data['Home'] == teamname) |\
                         (self.match_data['Away'] == teamname)) & \
-                        (self.match_data['Pending'] == False)].iloc[-5:]
+                        (self.match_data['Pending'] == False)]
+        
+        last5 = games.iloc[-min(5, len(games)):]
         last5 = last5.sort_values(by='Datetime', ascending=False)
 
         top_str = '__**Last 5 games:**__     '
