@@ -101,8 +101,9 @@ class Scheduler(commands.Cog):
         "Decordator for routine functions which trys and sends error message"
         async def wrapper(self, *args, **kwargs):
             try:
-                val = await function(self, *args, **kwargs)
+                val = await func(self, *args, **kwargs)
             except Exception as e:
+                val = None
                 await self.admin.send(f"Error in routine function: {func.__name__}\n{e}")
 
             return val
@@ -236,7 +237,9 @@ class Scheduler(commands.Cog):
         for key in ['fixtures_updates', 'chasers']:
             for subkey, dt_str in self.meta[key].items():
                 # convert str to datetime
-                self.meta[key][subkey] = dt.strptime(str(dt_str.replace(microsecond=0)), '%Y-%m-%d %H:%M:%S')
+                dt_val = dt_str if type(dt_str) == str else str(dt_str.replace(microsecond=0))
+
+                self.meta[key][subkey] = dt.strptime(dt_val, '%Y-%m-%d %H:%M:%S')
 
         self.fixtures_chase = self.meta.get('fixtures_updates')
         self.chasers = self.meta.get('chasers')
