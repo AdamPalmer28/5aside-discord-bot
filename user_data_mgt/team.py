@@ -121,7 +121,7 @@ class Team(commands.Cog):
         display_name, id = player
         user = self.team[str(id)]
 
-        await ctx.send(f'Set {user.display_name} avaliability to: {resp} for game on {date}')
+        await ctx.send(f'Set {user.display_name} availability to: {resp} for game on {date}')
         user.availability[date] = resp # update figures
 
         # add default paid response

@@ -55,7 +55,7 @@ class Fixtures(commands.Cog):
         Upcoming and previous fixture dates YYYY-MM-DD
         """
         previous_data = self.our_games.loc[(self.our_games['Datetime'] < dt.now()),'Datetime']
-        upcoming_data = self.our_games.loc[(self.our_games['Datetime'] >= dt.now())]
+        upcoming_data = self.our_games.loc[(self.our_games['Datetime'] >= dt.now()),'Datetime']
 
         if len(previous_data) != 0:
             self.previous_date = previous_data.iloc[-1]
