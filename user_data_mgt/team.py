@@ -125,7 +125,8 @@ class Team(commands.Cog):
         user.availability[date] = resp # update figures
 
         # add default paid response
-        user.paid[date] = user.paid.get(date, False)
+        if resp == 'yes':
+            user.paid[date] = user.paid.get(date, False)
 
         self.save_team() # save data
 

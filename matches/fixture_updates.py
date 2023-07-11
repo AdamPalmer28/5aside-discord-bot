@@ -38,17 +38,16 @@ async def check_new_fixture_data(new_data: pd.DataFrame, old_data: pd.DataFrame,
     new_data = fixture_data_format(new_data)
 
     # case 1: new season
-    if all(new_data['Date'] != old_data['Date']):    
-        latest_date = dt.strptime(old_data['Date'].iloc[-1], '%Y-%m-%d')
+    if (len(new_data) != len(old_data)) or all(new_data['Date'] != old_data['Date']):    
+        latest_date = old_data['Date'].iloc[-1]
 
-        #old_season_path = f'//TRUENAS/Misc_storage/5aside_discord_bot/league_data/old_seasons/'
         old_season_path = path + f'/league_data/old_seasons/'
         old_data.to_csv(old_season_path+f'Season-{latest_date.strftime("%Y-%m-%d")}.csv', index=False)
         
         return new_data, 1
     
     # case 2: check for new results
-    elif any(new_data['Pending'] != old_data['Pending']):
+    if any(new_data['Pending'] != old_data['Pending']):
         # new results added
         new_results = new_data[new_data['Pending'] != old_data['Pending']]
 
