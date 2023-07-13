@@ -169,37 +169,38 @@ class Fixtures(commands.Cog):
         await ctx.channel.send(form)
 
     @commands.command()
-    def upcoming(self, ctx, arg):
+    async def upcoming(self, ctx, *args):
         "Shows upcoming fixutres"
 
-        if arg == None:
-            arg = 3
-        else:
-            try:
-                arg = int(arg)
-            except:
-                ctx.channel.send('Invalid argument - must be an integer')
-                return
+        try:
+            ind = args[0]
+            ind = int(ind)
+        except IndexError:
+            ind = 3
+        except ValueError:
+            ctx.channel.send('Invalid argument - must be an integer')
+            return
             
         # get upcoming games
         upcoming_games = self.match_data.loc[(self.match_data['Datetime'] >= 
                                 dt.now().replace(hour=0, minute=0, second=0))]
-        upcoming_games = upcoming_games.iloc[:min(arg, len(upcoming_games))]
 
         dates = upcoming_games['Date'].unique()
-        dates.sort()
+        response = f'Upcoming {min(ind, len(upcoming_games))} games:\n\n'
 
-        for date in dates:
+        for date in dates[:min(ind, len(upcoming_games))]:
             # date
-            response = f'__**{date.date()}**__\n'
+            response += f'__**{date.date().strftime("%Y-%m-%d")}**__\n'
             # games
             games = upcoming_games[upcoming_games['Date'] == date]
-            for i, row in games.iterrows():
-                response += f'{row["Time"].strftime("%H:%M")}: {row["Home"]} vs {row["Away"]}\n'
+
+            response += '```' + games[['Time','Home','Away']].to_string(index=False) + '```'
+            # for i, row in games.iterrows():
+            #     response += f'{row["Time"].strftime("%H:%M")}:    **{row["Home"]}**    vs    **{row["Away"]}**\n'
 
             response += '\n'
 
-        ctx.channel.send(response)
+        await ctx.channel.send(response)
 
 
 
