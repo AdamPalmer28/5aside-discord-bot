@@ -15,6 +15,7 @@ def user_help(bot):
         '!recent   -   show our recent results',
         '!table   -   show the league table',
         '!stats   -   show player stats for the season',
+        '!upcoming number  -   show upcoming fixtures for all teams (optional input)',
         '',
         '__**Avaliability**__',
         '!outstanding   -   show player outstanding payments',
