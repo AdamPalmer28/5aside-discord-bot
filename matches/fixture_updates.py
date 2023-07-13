@@ -42,22 +42,23 @@ async def check_new_fixture_data(new_data: pd.DataFrame, old_data: pd.DataFrame,
         await admin.send(f'Fixture update: Length of old and new data do not match')
         
 
+    # case 3: no updates
+    if new_data == old_data:
+        # msg Admin - tried to pull new results but none found
+        admin = bot.get_user(admin_id)
+        await admin.send(f'Fixture update: No new results found')
+
+        return old_data, 3
+    
     # case 1: new season
-    if all(new_data['Pending'] == True):    
+    elif all(new_data['Pending'] == True):
+
         latest_date = old_data['Date'].iloc[-1]
 
         old_season_path = path + f'/league_data/old_seasons/'
         old_data.to_csv(old_season_path+f'Season-{latest_date.strftime("%Y-%m-%d")}.csv', index=False)
         
         return new_data, 1
-    
-    # case 3: no updates
-    elif new_data == old_data:
-        # msg Admin - tried to pull new results but none found
-        admin = bot.get_user(admin_id)
-        await admin.send(f'Fixture update: No new results found')
-
-        return old_data, 3
 
     # case 2: check for new results
     else:
