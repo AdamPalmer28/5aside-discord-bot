@@ -10,6 +10,7 @@ import copy
 from .fixture_updates import fixture_data_format, check_new_fixture_data
 from .league_scraper import get_league_matches
 
+from os import listdir
 
 class Fixtures(commands.Cog):
     """
@@ -27,6 +28,9 @@ class Fixtures(commands.Cog):
         # match data
         self.match_data = pd.read_csv(f'{self.path}/league_data/fixtures.csv')
         self.analyse_match_data()
+
+        # previous season data
+        self.old_season_data()
 
 
 
@@ -60,7 +64,7 @@ class Fixtures(commands.Cog):
         if len(previous_data) != 0:
             self.previous_date = previous_data.iloc[-1]
         else:
-            upcoming_data.iloc[0] - pd.Timedelta(days=7)
+            self.previous_date = upcoming_data.iloc[0] - pd.Timedelta(days=7)
 
         if len(upcoming_data) == 0:
             self.upcoming_date = self.previous_date + pd.Timedelta(days=7)
@@ -92,6 +96,8 @@ class Fixtures(commands.Cog):
                 await self.channel.send('Last season results:\n')
                 await self.channel.send('```' + self.league_table.to_string(index=False) + '```')
 
+                self.prev_season_data = pd.concat([self.prev_season_data, self.match_data], ignore_index=True)  # add to previous season data 
+
 
             self.match_data = new_data_org
             new_data_org.to_csv(f'{self.path}/league_data/fixtures.csv', index=False)
@@ -106,6 +112,32 @@ class Fixtures(commands.Cog):
 
 
             return True
+        
+    def old_season_data(self):
+        "Load previous season data"
+
+        path = self.path + f'/league_data/old_seasons/'
+        files = listdir(path)
+
+        self.prev_season_data = pd.DataFrame()
+        for file in files:
+            if file.endswith('.csv'):
+                data = pd.read_csv(path+file)
+                data = fixture_data_format(data)
+
+                self.prev_season_data = pd.concat([self.prev_season_data, data], ignore_index=True)
+
+    def get_all_our_games(self):
+        "Get all our games - accross all seasons"
+
+        cur = self.match_data[(self.match_data['Home'] == self.team) | 
+                                         (self.match_data['Away'] == self.team)]
+        
+        prev = self.prev_season_data[(self.prev_season_data['Home'] == self.team) |
+                                        (self.prev_season_data['Away'] == self.team)]
+        
+        return pd.concat([prev, cur], ignore_index=True)
+
     # -------------------------------------------------------------------------   
     # Commands
     # -------------------------------------------------------------------------   

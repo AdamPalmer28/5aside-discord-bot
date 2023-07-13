@@ -127,6 +127,7 @@ class Team(commands.Cog):
         # add default paid response
         if resp == 'yes':
             user.paid[date] = user.paid.get(date, False)
+        
 
         self.save_team() # save data
 
@@ -274,8 +275,8 @@ class Team(commands.Cog):
         columns = player | won | lost | draw | goals | assists | motm 
                     avg gf | avg ga | avg gd | avg pts
         """
-
-        table = player_stats(self.team, self.fixtures.our_games)
+        our_matches = self.fixtures.get_all_our_games()
+        table = player_stats(self.team, our_matches)
 
         await ctx.send(f'```{table.to_string(index=False)}```')
 
