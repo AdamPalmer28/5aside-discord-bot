@@ -33,7 +33,6 @@ class Fixtures(commands.Cog):
         self.old_season_data()
 
 
-
     def analyse_match_data(self):
         """
         Analyse the match data
@@ -70,6 +69,7 @@ class Fixtures(commands.Cog):
             self.upcoming_date = self.previous_date + pd.Timedelta(days=7)
         else:
             self.upcoming_date = upcoming_data.iloc[0]
+
 
     async def extract_match_data(self):
         "Extract new match data"
@@ -167,6 +167,41 @@ class Fixtures(commands.Cog):
         # form
         form = self.recent_form(self.team)
         await ctx.channel.send(form)
+
+    @commands.command()
+    def upcoming(self, ctx, arg):
+        "Shows upcoming fixutres"
+
+        if arg == None:
+            arg = 3
+        else:
+            try:
+                arg = int(arg)
+            except:
+                ctx.channel.send('Invalid argument - must be an integer')
+                return
+            
+        # get upcoming games
+        upcoming_games = self.match_data.loc[(self.match_data['Datetime'] >= 
+                                dt.now().replace(hour=0, minute=0, second=0))]
+        upcoming_games = upcoming_games.iloc[:min(arg, len(upcoming_games))]
+
+        dates = upcoming_games['Date'].unique()
+        dates.sort()
+
+        for date in dates:
+            # date
+            response = f'__**{date.date()}**__\n'
+            # games
+            games = upcoming_games[upcoming_games['Date'] == date]
+            for i, row in games.iterrows():
+                response += f'{row["Time"].strftime("%H:%M")}: {row["Home"]} vs {row["Away"]}\n'
+
+            response += '\n'
+
+        ctx.channel.send(response)
+
+
 
     @commands.command()
     async def table(self, ctx):
