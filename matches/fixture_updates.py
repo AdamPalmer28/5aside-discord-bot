@@ -43,7 +43,7 @@ async def check_new_fixture_data(new_data: pd.DataFrame, old_data: pd.DataFrame,
         
 
     # case 3: no updates
-    if new_data == old_data:
+    if new_data.equals(old_data):
         # msg Admin - tried to pull new results but none found
         admin = bot.get_user(admin_id)
         await admin.send(f'Fixture update: No new results found')

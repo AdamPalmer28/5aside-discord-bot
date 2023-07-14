@@ -186,11 +186,12 @@ class Fixtures(commands.Cog):
                                 dt.now().replace(hour=0, minute=0, second=0))]
 
         dates = upcoming_games['Date'].unique()
-        response = f'Upcoming {min(ind, len(upcoming_games))} games:\n\n'
+        response = f'Upcoming {min(ind, len(dates))} games:\n\n'
+        await ctx.channel.send(response)
 
         for date in dates[:min(ind, len(upcoming_games))]:
             # date
-            response += f'__**{date.date().strftime("%Y-%m-%d")}**__\n'
+            response = f'__**{date.date().strftime("%Y-%m-%d")}**__\n'
             # games
             games = upcoming_games[upcoming_games['Date'] == date]
 
@@ -200,7 +201,7 @@ class Fixtures(commands.Cog):
 
             response += '\n'
 
-        await ctx.channel.send(response)
+            await ctx.channel.send(response)
 
 
 
