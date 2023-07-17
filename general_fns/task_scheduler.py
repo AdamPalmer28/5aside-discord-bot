@@ -139,8 +139,8 @@ class Scheduler(commands.Cog):
 
             date = self.last_week if (dt.now() < self.last_week_dt) else self.upcoming_date
 
-            resp = user.availability.get(date, 'no')
-            if resp == 'yes':
+            resp = user.availability.get(date, 'maybe')
+            if (resp != 'maybe'):
                 continue
 
             # send message to player

@@ -136,7 +136,7 @@ class Fixtures(commands.Cog):
         prev = self.prev_season_data[(self.prev_season_data['Home'] == self.team) |
                                         (self.prev_season_data['Away'] == self.team)]
         
-        return pd.concat([prev, cur], ignore_index=True)
+        return pd.concat([cur, prev], ignore_index=True)
 
     # -------------------------------------------------------------------------   
     # Commands
