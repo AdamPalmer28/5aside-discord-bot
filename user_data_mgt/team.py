@@ -46,8 +46,7 @@ class Team(commands.Cog):
                 for date, answer in user_dict.items():
                     # loop through user data (dates)
                     
-                    # ? not sure if this is needed
-                    if (attr == 'paid') & (user.availability.get(date, 'no') == 'no'): 
+                    if (attr == 'paid') & (user.availability.get(date, 'no') != 'yes'): 
                         # if user is not avaliable, skip
                         continue
 
@@ -252,7 +251,10 @@ class Team(commands.Cog):
         # check if user has already voted
         result = user.vote.get(date, False)
         if result:
-            await ctx.send(f'You have already voted for {result}... I will change that for you')
+            if result == v_user.display_name:
+                await ctx.send(f'You have already voted for {result}')
+            else:
+                await ctx.send(f'You have already voted for {result}... I will change that for you')
         
         user.vote[date] = v_user.display_name # update figures
 

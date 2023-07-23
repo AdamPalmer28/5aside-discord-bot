@@ -249,7 +249,12 @@ class Scheduler(commands.Cog):
 
         for key in ['fixtures_updates', 'chasers']:
             for subkey, dt_original in self.meta[key].items():
-                self.meta[key][subkey] = dt_original.strftime('%Y-%m-%d %H:%M:%S')
+                
+                if type(dt_original) == str:
+                    # convert str to datetime
+                    dt_original = dt.strptime(dt_original, '%Y-%m-%d %H:%M:%S')
+                
+                self.meta[key][subkey] = dt_original.strftime('%Y-%m-%d')
 
         with open(f'{self.path}/meta_data.json', 'w') as f:
             json.dump(self.meta, f, indent = 4)
