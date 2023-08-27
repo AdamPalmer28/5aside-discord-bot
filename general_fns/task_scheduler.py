@@ -210,18 +210,21 @@ class Scheduler(commands.Cog):
         if motm:
             # get max votes
             max_votes = max(motm.values())
-            # get users with max votes
-            motm_player = [user for user, votes in motm.items() if votes == max_votes]
-            motm_id = [self.team.user_names[user] for user in motm_player]
-            winner = self.team.team[str(motm_id[0])].display_name
-            # send message to channel
-            if len(motm_player) == 1:
-                msg = f"Congratulations to {winner} (<@{motm_id[0]}>) for winning MOTM for last weeks game.\n"
+            if max_votes == 1:
+                msg = "Not enough MOTM votes this week - no one recieved more than 1 vote"
+
             else:
-                motm_at = [f"<@{id}>" for id in motm_id]
-                msg = f"Congratulations to {', '.join(motm_player)} for winning MOTM for last weeks game. ({' '.join(motm_at)})\n"
-
-
+                # get users with max votes
+                motm_player = [user for user, votes in motm.items() if votes == max_votes]
+                motm_id = [self.team.user_names[user] for user in motm_player]
+                winner = self.team.team[str(motm_id[0])].display_name
+                # send message to channel
+                if len(motm_player) == 1:
+                    msg = f"Congratulations to {winner} (<@{motm_id[0]}>) for winning MOTM for last weeks game.\n"
+                else:
+                    motm_at = [f"<@{id}>" for id in motm_id]
+                    msg = f"Congratulations to {', '.join(motm_player)} for winning MOTM for last weeks game. ({' '.join(motm_at)})\n"
+                    
             await self.channel.send(msg)
         
         else:
