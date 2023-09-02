@@ -15,6 +15,9 @@ def general_msg(bot):
 
         if message.content.lower() == 'what do you think of tottenham?':
             await message.channel.send('SHIT!')
-
-    
-
+        if message.content.lower() == 'what do you think of shit?':
+            await message.channel.send('TOTTENHAM!')
+        if message.content.lower() == 'what do you think of matty?':
+            await message.channel.send('SEXY!')
+        if message.content.lower() == 'what do you think of sexy?':
+            await message.channel.send('MATTY!')
