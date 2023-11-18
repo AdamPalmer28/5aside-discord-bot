@@ -139,7 +139,7 @@ class Scheduler(commands.Cog):
         for id, user in self.team.team.items():
 
             # skip tk
-            if id == 462654687225708555: # tk's ID
+            if int(id) == 462654687225708555: # tk's ID
                 continue
 
             date = self.last_week if (dt.now() < self.last_week_dt) else self.upcoming_date
@@ -151,7 +151,10 @@ class Scheduler(commands.Cog):
             # send message to player
             dis_user = self.bot.get_user(int(id))
 
-            msg = f"Hi {user.display_name},\n\n"
+            if int(id) == 454252561063477250: # Lawrence's ID
+                msg = f"Listen here you entiled little shit! You better fucking reply to me...\n\n"
+            else:
+                msg = f"Hi {user.display_name},\n\n"
             msg += f"Please can you confirm your availability for the upcoming game on **{upcoming_match}**.\n"
             msg += f"To update your availability type: `!available yes/no/maybe`\n\n"
 
