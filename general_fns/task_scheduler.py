@@ -105,7 +105,7 @@ class Scheduler(commands.Cog):
             except Exception as e:
                 val = None
                 await self.admin.send(f"Error in routine function: {func.__name__}\n{e}")
-
+            
             return val
         return wrapper
 
@@ -119,9 +119,10 @@ class Scheduler(commands.Cog):
 
 
     @routine_function
-    async def fixtures_update(self):
+    async def fixtures_update(self, force = False):
         "Update fixtures"
-        if self.meta['fixtures_updates']['last_success'] < self.last_week_dt + timedelta(days = 1):
+        if (self.meta['fixtures_updates']['last_success'] < self.last_week_dt + timedelta(days = 1)) \
+            or force:
 
             self.meta['fixtures_updates']['last_attempt'] = dt.now()
             if await self.fixtures.extract_match_data():
@@ -136,6 +137,10 @@ class Scheduler(commands.Cog):
         upcoming_match = self.fixtures.upcoming_date.strftime('%H:%M %Y-%m-%d')
 
         for id, user in self.team.team.items():
+
+            # skip tk
+            if id == 462654687225708555: # tk's ID
+                continue
 
             date = self.last_week if (dt.now() < self.last_week_dt) else self.upcoming_date
 

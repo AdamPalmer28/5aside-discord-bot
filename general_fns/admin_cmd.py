@@ -54,7 +54,8 @@ class AdminCmd(commands.Cog):
     async def refresh_fixtures(self, ctx):
         "Refresh fixture data by scraping webpage"
         if await self.check_user(ctx):
-            response = await self.scheduler.fixtures_update()
+            
+            response = await self.scheduler.fixtures_update(force = True)
             
             await ctx.channel.send(f"Fixtures refreshed: {response}")
 
