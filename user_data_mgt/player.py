@@ -50,8 +50,13 @@ def player_stats(team, results, team_name = 'Earth Wind and Maguire'):
         for date, val in aval.items():
             if val != 'yes':
                 continue
-
-            match = results.loc[results['Date'] == date].iloc[0]
+            
+            try:
+                match = results.loc[results['Date'] == date].iloc[0]
+            except:
+                print(date, ' not found in results')
+                continue
+            
             if match['Pending'] == True:
                 continue
 
