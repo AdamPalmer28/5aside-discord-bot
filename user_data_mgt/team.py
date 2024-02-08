@@ -17,6 +17,10 @@ class Team(commands.Cog):
 
         self.admin_users = [184737297734959104]
 
+        self.captain_id = 265576326788808704 # Jack
+        self.captain = self.bot.get_user(self.captain_id)
+
+
         # create team data
 
         answer_data = ['availability', 'paid', 'vote']
@@ -126,8 +130,13 @@ class Team(commands.Cog):
         # add default paid response
         if resp == 'yes':
             user.paid[date] = user.paid.get(date, False)
-        
 
+
+        # notify Captain
+        msg_user = self.team[str(ctx.author.id)].display_name
+        if ctx.author.id != self.captain_id:
+            await self.captain.send(f'Availability update: {msg_user} has marked **{user.display_name}** as **{resp}** for game on {date}')
+        
         self.save_team() # save data
 
     @commands.command()
@@ -157,6 +166,56 @@ class Team(commands.Cog):
 
         resp = True if resp == 'yes' else False
         user.paid[date] = resp # update figures
+
+
+        # notify Captain
+        msg_user = self.team[str(ctx.author.id)].display_name
+        if ctx.author.id != self.captain_id:
+            await self.captain.send(f'Paid update: {msg_user} has marked **{user.display_name}** as **{resp}** for game on {date}')
+
+        self.save_team() # save data
+
+    @commands.command()
+    async def paid_all(self, ctx, *args):
+        "Mark all payments as paid for a player"
+        try:
+            player = args[0]
+        except IndexError:
+            player = self.team[str(ctx.author.id)].display_name
+
+        for id, user in self.team.items():
+            # player not in team
+            if player.lower() in user.name:
+                player = [user.display_name, id] # found player
+                break
+        else:
+            # Error - player not found
+            await ctx.send(f'Player name: {player} not found - please try again')
+            return
+    
+        # excute command
+        outstanding = self.outstanding_dict()
+
+        if player[0] not in outstanding:
+            await ctx.send(f'{player[0]} has no outstanding payments')
+            return
+        
+        payment_dates = []
+        for date in outstanding[player[0]]:
+            
+            user = self.team[player[1]]
+            user.paid[date] = True
+
+            payment_dates.append(date)
+
+        await ctx.send(f'All payments marked as paid for {player[0]}, for games on: {", ".join(payment_dates)}')
+
+
+        # notify Captain
+        msg_user = self.team[str(ctx.author.id)].display_name
+        if ctx.author.id != self.captain_id:
+            await self.captain.send(f'Paid update: {msg_user} has marked all payments as paid for **{player[0]}** for games on: {", ".join(payment_dates)}')
+
 
         self.save_team() # save data
 
@@ -395,9 +454,17 @@ class Team(commands.Cog):
         avaliable_msg = '__**Team avaliability**__:\n\n'
         cur_team = self.availability.get(date, {})
 
-        for response, players in cur_team.items():
-            avaliable_msg += f"{response.title()}: {', '.join(players)}\n"
-
+        # player responses
+            # yes - avaliable
+        available_players = cur_team.get('yes',[])
+        avaliable_msg += f"**Availaible** ({len(available_players)}): {', '.join(available_players)}\n"
+            # no - not avaliable
+        notavailable_players = cur_team.get('no',[])
+        avaliable_msg += f"**Not Availaible** ({len(notavailable_players)}): {', '.join(notavailable_players)}\n"
+            # maybe
+        if 'maybe' in cur_team.keys():
+            maybe_players = cur_team.get('maybe',[])
+            avaliable_msg += f"\nMaybe ({len(maybe_players)}): {', '.join(maybe_players)}\n"
             # no response
         no_response = []
         for user in self.team.values():
@@ -405,7 +472,7 @@ class Team(commands.Cog):
                 no_response.append(user.display_name)
 
         if len(no_response) > 0:
-            avaliable_msg += f'\nNo response: {", ".join(no_response)}'
+            avaliable_msg += f'\nNo response ({len(no_response)}): {", ".join(no_response)}'
 
         opponent_form = f"Opponent's {opponent_form}"
 

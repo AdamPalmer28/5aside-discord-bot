@@ -214,6 +214,8 @@ class Scheduler(commands.Cog):
         self.team.calc_motm()
 
         motm = self.team.motm.get(self.last_week, False)
+        # send admin motm votes
+        await self.admin.send(f"MOTM votes for {self.last_week}:\n{motm}")
 
         if motm:
             # get max votes
