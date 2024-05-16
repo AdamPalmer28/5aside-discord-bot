@@ -17,7 +17,7 @@ class Team(commands.Cog):
 
         self.admin_users = [184737297734959104]
 
-        self.captain_id = 265576326788808704 # Jack
+        self.captain_id = 184737297734959104 #265576326788808704 # Jack
         self.captain = self.bot.get_user(self.captain_id)
 
 
