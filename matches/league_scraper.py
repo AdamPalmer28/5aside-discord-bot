@@ -5,7 +5,7 @@ import requests
 import pandas as pd
 from bs4 import BeautifulSoup
 
-url = "https://www.leisureleagues.net/league/fixture-list/aqua-vale-swimming-fitness-centre/aylesbury-thursday/premier-league"
+url = "https://www.leisureleagues.net/league/fixture-list/aqua-vale-swimming-fitness-centre/aylesbury-thursday/division-1"
 
 def get_league_matches():
     """
