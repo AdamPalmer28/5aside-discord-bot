@@ -21,3 +21,13 @@ def general_msg(bot):
             await message.channel.send('SEXY!')
         if message.content.lower() == 'what do you think of sexy?':
             await message.channel.send('MATTY!')
+
+        # account for commands which start with '! cmd'
+        if message.content.lower().startswith('! '):
+
+            print("Auto correct command on phones")
+            message.content = '!' + message.content[2:]
+
+            await bot.process_commands(message)
+
+
