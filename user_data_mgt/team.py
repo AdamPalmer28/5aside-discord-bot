@@ -102,7 +102,7 @@ class Team(commands.Cog):
     # --------------------- Team commands -------------------------------------
     # =========================================================================
 
-    @commands.command()
+    @commands.command(name='available', aliases=['avaliable', 'availiable', 'avail', 'a', ' avaliable'])
     async def available(self, ctx, *args):
         "mark availability for a given game"
         try:
@@ -139,7 +139,7 @@ class Team(commands.Cog):
         
         self.save_team() # save data
 
-    @commands.command()
+    @commands.command(name='paid', aliases=['p', 'piad', 'pay'])
     async def paid(self, ctx, *args):
         "Check who has paid for a given game"
         try:
@@ -175,7 +175,7 @@ class Team(commands.Cog):
 
         self.save_team() # save data
 
-    @commands.command()
+    @commands.command(name='paid_all', aliases=['pa', 'piad_all', 'pay_all'])
     async def paid_all(self, ctx, *args):
         "Mark all payments as paid for a player"
         try:
@@ -291,7 +291,7 @@ class Team(commands.Cog):
         self.save_team() # save data
 
 
-    @commands.command()
+    @commands.command(name='vote', aliases=['v','motm'])
     async def vote(self, ctx, *args):
         "Vote for motm"
         player, date = await self.args_player_date(ctx, args, 0, 1)
@@ -299,7 +299,7 @@ class Team(commands.Cog):
             return
         
         display_name, id = player
-        if id == ctx.author.id:
+        if int(id) == ctx.author.id:
             await ctx.send('You cannot vote for yourself')
             return
         
@@ -312,8 +312,9 @@ class Team(commands.Cog):
         if result:
             if result == v_user.display_name:
                 await ctx.send(f'You have already voted for {result}')
+                return
             else:
-                await ctx.send(f'You have already voted for {result}... I will change that for you')
+                await ctx.send(f'You have previously voted for {result}... I will change that')
         
         user.vote[date] = v_user.display_name # update figures
 
