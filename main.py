@@ -17,7 +17,8 @@ from discord.ext import commands
 
 intents = discord.Intents.all()
 intents.message_content = True
-bot = commands.Bot(command_prefix='!', intents=intents)
+intents.reactions = True
+bot = commands.Bot(command_prefix='!', intents=intents, case_insensitive=True)
 
 # ------------------------------------------------------------
 # load meta data 
@@ -36,6 +37,7 @@ from matches.games import Fixtures
 from general_fns import general_msg, user_help, AdminCmd, Scheduler
 from user_data_mgt.team import Team
 
+
 # ============================================================
 # Instantiate classes
 
@@ -48,6 +50,8 @@ def intialise(channel):
     scheduler = Scheduler(bot, meta, path, team, fixtures) # scheduler
 
     admin = AdminCmd(bot, team, fixtures, scheduler) # admin commands
+
+    
 
     return fixtures, team, admin
 
@@ -75,10 +79,17 @@ async def on_ready():
 
     admin.general_debug()
 
+# ------------------------------------------------------------
 
-
+# enable help command
 user_help(bot)
+
+# general messages
 general_msg(bot)
+
+# test function
+import user_data_mgt.emoji_reactions as emoji_reactions
+emoji_reactions.emoji_cmd(bot)
 
 
 bot.run(TOKEN)
