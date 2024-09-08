@@ -38,7 +38,7 @@ class Scheduler(commands.Cog):
         self.extract_meta()
 
         self.last_week_dt, self.last_week, self.upcoming_date_dt, \
-            self.upcoming_date = get_recent_thursday()
+        self.upcoming_date = get_recent_thursday()
         
         self.admin = self.bot.get_user( self.meta['admin_id'][0] )
         self.channel = bot.get_channel(self.meta['channel_id']['live'])
@@ -151,8 +151,8 @@ class Scheduler(commands.Cog):
             # send message to player
             dis_user = self.bot.get_user(int(id))
 
-            msg = f"Hi {user.display_name},\n\n"
-            msg += f"Please can you confirm your availability for the upcoming game on **{upcoming_match}**.\n"
+            msg = f"Hi {user.display_name},\n"
+            msg += f"Please confirm your availability for the upcoming game on **{upcoming_match}**.\n"
             msg += f"To update your availability type: `!available yes/no/maybe`\n\n"
 
             await dis_user.send(msg)
@@ -172,8 +172,9 @@ class Scheduler(commands.Cog):
             dis_user = self.bot.get_user(int(id))
 
             msg = f"Hi {player},\n\n"
-            msg += f"You have a few outstanding weeks of payments {', '.join(outstanding)}.\n"
-            msg += f"To update please type: `!paid yes date` to mark payment for a game date\n\n"
+            msg += f"You have outstanding payments £{5*len(outstanding)} (Games: {', '.join(outstanding)}).\n\n"
+            msg += f"Bank details:  **Name:** Adam Rose  |  **Account Number:** 27952169  |  **Sort Code:** 11-00-01 \n"
+            msg += f"To update please type: `!paid yes date` to mark payment for a game date or '!paid_all' to mark all payments\n\n"
           
             await dis_user.send(msg)
 
