@@ -337,7 +337,7 @@ class Team(commands.Cog):
         columns = player | won | lost | draw | goals | assists | motm 
                     avg gf | avg ga | avg gd | avg pts
         """
-        our_matches = self.fixtures.get_all_our_games()
+        our_matches = self.fixtures.all_our_games
         table = player_stats(self.team, our_matches)
 
         await ctx.send(f'```{table.to_string(index=False)}```')
@@ -430,7 +430,8 @@ class Team(commands.Cog):
             # not enough arguments - assume date is latest 
             date = self.fixtures.previous_date if prev_date \
                             else self.fixtures.upcoming_date
-            await ctx.send(f'No date given - assuming date: {date.date()}')
+            # removed for clutter
+            # await ctx.send(f'No date given - assuming date: {date.date()}')
         
         except TypeError:
             # unrecognised date format
@@ -449,7 +450,8 @@ class Team(commands.Cog):
         
     def next_msg(self):
         "Generate the next game message"
-        next_info, opponent_form, date = self.fixtures.next_game_info()
+        #print(self.fixtures.next_game_info())
+        next_info, opponent_form, prev_match_opp, date = self.fixtures.next_game_info()
 
         # avaliablity of players
         avaliable_msg = '__**Team avaliability**__:\n\n'
@@ -475,9 +477,10 @@ class Team(commands.Cog):
         if len(no_response) > 0:
             avaliable_msg += f'\nNo response ({len(no_response)}): {", ".join(no_response)}'
 
+    
         opponent_form = f"Opponent's {opponent_form}"
-
-        return (next_info + '\n\n' + avaliable_msg + '\n\n' + opponent_form)
+            
+        return (next_info + '\n\n' + avaliable_msg + '\n\n' + opponent_form + '\n\n' + prev_match_opp)
         
     def outstanding_dict(self):
         "Get the outstanding payments as a dictionary"

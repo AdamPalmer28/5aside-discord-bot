@@ -27,10 +27,12 @@ class Fixtures(commands.Cog):
 
         # match data
         self.match_data = pd.read_csv(f'{self.path}/league_data/fixtures.csv')
-        self.analyse_match_data()
 
         # previous season data
         self.old_season_data()
+
+        self.analyse_match_data()
+
 
 
     def analyse_match_data(self):
@@ -40,12 +42,24 @@ class Fixtures(commands.Cog):
         # format data
         self.match_data = fixture_data_format(self.match_data)
 
-        # split into upcoming and results
+        # update game data attributes
+
+            # split into upcoming and results
         self.results = self.match_data[self.match_data['Pending'] == False]
         self.upcoming = self.match_data[self.match_data['Pending'] == True]
-
+            
+            # our games this season
         self.our_games = self.match_data[(self.match_data['Home'] == self.team) | 
                                          (self.match_data['Away'] == self.team)]
+        
+            # all our games
+        cur = self.match_data[(self.match_data['Home'] == self.team) | 
+                                        (self.match_data['Away'] == self.team)]
+        prev = self.prev_season_data[(self.prev_season_data['Home'] == self.team) |
+                                            (self.prev_season_data['Away'] == self.team)]
+            
+        self.all_our_games = pd.concat([cur, prev], ignore_index=True)
+        self.all_our_games = self.all_our_games.sort_values(by='Datetime')
 
         # create league table
         self.create_league_table()  
@@ -109,8 +123,6 @@ class Fixtures(commands.Cog):
                 await self.channel.send('Updated league table:\n')
                 await self.channel.send('```' + self.league_table.to_string(index=False) + '```')
 
-
-
             return True
         
     def old_season_data(self):
@@ -127,22 +139,11 @@ class Fixtures(commands.Cog):
 
                 self.prev_season_data = pd.concat([self.prev_season_data, data], ignore_index=True)
 
-    def get_all_our_games(self):
-        "Get all our games - accross all seasons"
-
-        cur = self.match_data[(self.match_data['Home'] == self.team) | 
-                                         (self.match_data['Away'] == self.team)]
-        
-        prev = self.prev_season_data[(self.prev_season_data['Home'] == self.team) |
-                                        (self.prev_season_data['Away'] == self.team)]
-        
-        return pd.concat([cur, prev], ignore_index=True)
 
     # -------------------------------------------------------------------------   
     # Commands
     # -------------------------------------------------------------------------   
 
-    
     @commands.command()
     async def recent(self, ctx):
         """
@@ -225,10 +226,10 @@ class Fixtures(commands.Cog):
         upcoming_games = self.our_games.loc[(self.our_games['Datetime'] >= dt.now())]
 
         if len(upcoming_games) == 0:
-            return 'Unknown next match info - possible new season', '', ''
+            return 'Unknown next match info - possible new season', '', '', ''
 
         next_game = upcoming_games.iloc[0]
-
+        next_game_date = next_game["Date"].date().strftime("%Y-%m-%d")
 
         # get opponent
         opponent = next_game['Away'] if next_game['Home'] == self.team else next_game['Home']
@@ -237,10 +238,47 @@ class Fixtures(commands.Cog):
         response = f'Next game is against __**{opponent}**__ on __**{next_game["Date"].date()}**__' + \
             f' at __**{next_game["Time"].strftime("%H:%M")}**__'
         
+        # last match against opponent
+        prev_match_opp = self.matches_against_opp(opponent)
+
         # form
         form = self.recent_form(opponent)
 
-        return response, form, (next_game["Date"].date().strftime("%Y-%m-%d"))
+        return response, form, prev_match_opp, next_game_date
+    
+    def matches_against_opp(self, opponent):
+        """Looks over the last match against the opponent and returns the result"""
+
+        # get last match
+        recent_games = self.all_our_games.loc[(self.all_our_games['Pending'] == False) &
+                 ((self.all_our_games['Home'] == opponent) |  (self.all_our_games['Away'] == opponent))]
+        
+        if len(recent_games) == 0:
+            return f'No previous matches against {opponent}'
+        
+        # W-L record
+        wins = len(recent_games[recent_games['Winner'] == self.team])
+        draws = len(recent_games[recent_games['Winner'] == 'Draw'])
+        losses = len(recent_games) - wins - draws
+
+        response = f'Our record (W-D-L) against __**{opponent}**__ is __**{wins}-{draws}-{losses}**__\n'
+
+        last_match = recent_games.iloc[-1]
+        # result
+        result_str = 'Win' if last_match['Winner'] == self.team else \
+                ('Draw' if last_match['Winner'] == 'Draw' else 'Loss')
+
+        # score
+        if last_match['Home'] == self.team:
+            score = f'{last_match["Home score"]} - {last_match["Away score"]}'
+        else:
+            score = f'{last_match["Away score"]} - {last_match["Home score"]}'
+
+        # response
+        response += f'Last game against __**{opponent}**__ was a __**{result_str}**__ ({score})'
+
+        return response
+
 
     def recent_form(self, teamname):
         """
