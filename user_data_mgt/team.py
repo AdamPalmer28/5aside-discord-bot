@@ -338,11 +338,8 @@ class Team(commands.Cog):
     async def next(self, ctx):
         "Show the next game date and time and the recent form of the opponent"
 
-        msg ='__**Next match**__\n' # Emoji identifier
+        msg = self.next_msg()
 
-        msg += self.next_msg()
-
-        msg += f"\n\nTo update your availability please react to this message!"
         dis_msg = await ctx.channel.send(msg)
 
         await dis_msg.add_reaction("⚽") # Yes
@@ -497,9 +494,12 @@ class Team(commands.Cog):
 
         if len(no_response) > 0:
             avaliable_msg += f'\nNo response ({len(no_response)}): {", ".join(no_response)}'
-
-            
-        return (next_info + '\n\n' + prev_match_opp + '\n\n' + avaliable_msg + '\n\n' + opponent_form )
+ 
+        msg ='__**Next match**__\n' # Emoji identifier
+        msg += next_info + '\n\n' + prev_match_opp + '\n\n'
+        msg += avaliable_msg + '\n\n' + opponent_form 
+        msg += '\n\nTo update your availability please react to this message!'
+        return msg
         
     def outstanding_dict(self):
         "Get the outstanding payments as a dictionary"
@@ -556,21 +556,54 @@ class Team(commands.Cog):
             msg_author_id = message.author
             user_emoji = payload.emoji.name
 
-
+            user = self.team.get(str(user_id), False)
+            if user == False:
+                return
             # ---------------------------------------------------
 
             # availabilty message
             if msg_content.startswith("__**Next match**__"):
-                print('Next match')
+                
+                if user_emoji in ['⚽', '❌', '❔']:
+                    # get date
+                    date = self.fixtures.upcoming_date.strftime('%Y-%m-%d')
+                    user.availability[date] = 'yes' if user_emoji == '⚽' else 'no' if user_emoji == '❌' else 'maybe'
+                    
+                    self.save_team()
+                    
+                    await message.edit(content = self.next_msg())
 
-                print(msg_content)
-                print(user_emoji)
-                print(user_id)
-                #await channel.send(f"**Availability**\n{user_id} reacted with: {user_emoji}")
-
-            # paid message 
+                emoji_fn = "Next match"
             
+            # paid message 
+            if msg_content.startswith("__**Outstanding payments**__"):
+                
+                if user_emoji in ['💸','💰']:
+                    
+                    # 💸 paid this week
+                    if user_emoji == '💸':
+                        date = self.fixtures.previous_date.strftime('%Y-%m-%d')
+                        user.paid[date] = True
+
+                    # 💰 paid all
+                    if user_emoji == '💰':
+                        for date in self.outstanding_dict()[user.display_name]:
+                            user.paid[date] = True
+                
+                    self.save_team()
+                emoji_fn = "Outstanding payments"
+
             # vote message 
+            if msg_content.startswith("__**Man of the Match**__"):
+                
+
+                emoji_fn = "MOTM"
+
+
+            # Message Captain
+            #if user_id != self.captain_id:
+            await self.captain.send(f'{user.display_name} has reacted to the {emoji_fn} message with {user_emoji}')
+
         
     # =========================================================================
     # Import and exporting team data to json

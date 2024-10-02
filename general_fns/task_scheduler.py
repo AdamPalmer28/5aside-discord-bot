@@ -114,12 +114,9 @@ class Scheduler(commands.Cog):
     @routine_function
     async def next_match_info(self, ctx):
         "Send next match info"
-
-        msg ='__**Next match**__\n' # Emoji identifier
         
-        msg += self.team.next_msg()
-
-        msg += f"\n\nTo update your availability please react to this message!"
+        msg = self.team.next_msg()
+        
         dis_msg = await self.channel.send(msg)
 
         await dis_msg.add_reaction("⚽") # Yes
@@ -186,8 +183,8 @@ class Scheduler(commands.Cog):
             id = self.team.user_names[player]
             dis_user = self.bot.get_user(int(id))
 
-            msg = f"Hi {player},\n\n"
-            msg += f"You have outstanding payments £{5*len(outstanding)} (Games: {', '.join(outstanding)}).\n\n"
+            msg = f"__**Outstanding Payments**__\n\n"
+            msg += f"You have {len(outstanding)} outstanding payments (£{5*len(outstanding)}) \nGames: {', '.join(outstanding)}).\n\n"
             msg += f"Bank details: \n**Name:** Adam Rose  \n**Account Number:** 27952169  \n**Sort Code:** 11-00-01 \n\n"
             msg += f"💸 mark **this week** as paid\n"
             msg += f"💰 mark **all** outstanding as paid"
@@ -214,8 +211,8 @@ class Scheduler(commands.Cog):
                 # send message to player
                 dis_user = self.bot.get_user(int(id))
 
-                msg = f"Hi {user.display_name},\n\n"
-                msg += f"Please vote for the **MOTM** for last week's game ({self.last_week}).\n"
+                msg = f"__**Man of the Match**__\n\n"
+                msg += f"Please vote for who you think is **MOTM** in last week's game ({self.last_week}).\n"
                 msg += f"To vote type: `!vote player_name`\n\n"
                 msg += f"MOTM will be announced **6pm Sunday**\n"
 
