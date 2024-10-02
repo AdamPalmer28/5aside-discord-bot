@@ -235,7 +235,7 @@ class Fixtures(commands.Cog):
         opponent = next_game['Away'] if next_game['Home'] == self.team else next_game['Home']
 
         # Match fixture
-        response = f'Next game is against __**{opponent}**__ on __**{next_game["Date"].date()}**__' + \
+        response = '__**{opponent}**__ on __**{next_game["Date"].date()}**__' + \
             f' at __**{next_game["Time"].strftime("%H:%M")}**__'
         
         # last match against opponent
@@ -275,7 +275,7 @@ class Fixtures(commands.Cog):
             score = f'{last_match["Away score"]} - {last_match["Home score"]}'
 
         # response
-        response += f'Last game against __**{opponent}**__ was a __**{result_str}**__ ({score})'
+        response += f'Last game against was a __**{result_str}**__ ({score})'
 
         return response
 
@@ -293,7 +293,7 @@ class Fixtures(commands.Cog):
         last5 = games.iloc[-min(5, len(games)):]
         last5 = last5.sort_values(by='Datetime', ascending=False)
 
-        top_str = '__**Last 5 games:**__     '
+        top_str = "Opponent's  __**Last 5 games:**__     "
         form_str = '\n'
 
         for i, row in last5.iterrows():

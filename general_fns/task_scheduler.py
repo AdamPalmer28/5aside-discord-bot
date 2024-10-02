@@ -112,10 +112,19 @@ class Scheduler(commands.Cog):
     # -------------------------------------------------------------------------
 
     @routine_function
-    async def next_match_info(self):
+    async def next_match_info(self, ctx):
         "Send next match info"
-        msg = self.team.next_msg()
-        await self.channel.send(msg)
+
+        msg ='__**Next match**__\n' # Emoji identifier
+        
+        msg += self.team.next_msg()
+
+        msg += f"\n\nTo update your availability please react to this message!"
+        dis_msg = await self.channel.send(msg)
+
+        await dis_msg.add_reaction("⚽") # Yes
+        await dis_msg.add_reaction("❌") # No
+        await dis_msg.add_reaction("❔") # Maybe
 
 
     @routine_function
@@ -151,11 +160,17 @@ class Scheduler(commands.Cog):
             # send message to player
             dis_user = self.bot.get_user(int(id))
 
-            msg = f"Hi {user.display_name},\n"
+            msg = f"__**Next match**__\n"
             msg += f"Please confirm your availability for the upcoming game on **{upcoming_match}**.\n"
-            msg += f"To update your availability type: `!available yes/no/maybe`\n\n"
+            msg += f"To update your availability please react to this message!\n\n"
+            msg += f"⚽ - __**Available**__ \n ❌ __**Not**__ Available \n ❔ - __**Unsure**__.\n"
 
-            await dis_user.send(msg)
+            dis_msg = await dis_user.send(msg)
+
+            await msg.add_reaction("⚽") # Yes
+            await msg.add_reaction("❌") # No
+            await msg.add_reaction("❔") # Maybe
+
 
         # update meta data
         self.meta['chasers']['avaliability'] = dt.now()
@@ -173,10 +188,14 @@ class Scheduler(commands.Cog):
 
             msg = f"Hi {player},\n\n"
             msg += f"You have outstanding payments £{5*len(outstanding)} (Games: {', '.join(outstanding)}).\n\n"
-            msg += f"Bank details:  **Name:** Adam Rose  |  **Account Number:** 27952169  |  **Sort Code:** 11-00-01 \n"
-            msg += f"To update please type: `!paid yes date` to mark payment for a game date or '!paid_all' to mark all payments\n\n"
+            msg += f"Bank details: \n**Name:** Adam Rose  \n**Account Number:** 27952169  \n**Sort Code:** 11-00-01 \n\n"
+            msg += f"💸 mark **this week** as paid\n"
+            msg += f"💰 mark **all** outstanding as paid"
           
-            await dis_user.send(msg)
+            dis_msg = await dis_user.send(msg)
+
+            await msg.add_reaction("💸") # paid
+            await msg.add_reaction("💰") # paid_all
 
         # update meta data
         self.meta['chasers']['paid'] = dt.now()

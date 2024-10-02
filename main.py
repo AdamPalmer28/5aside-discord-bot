@@ -88,8 +88,9 @@ user_help(bot)
 general_msg(bot)
 
 # test function
-import user_data_mgt.emoji_reactions as emoji_reactions
-emoji_reactions.emoji_cmd(bot)
+
+#import user_data_mgt.emoji_reactions as emoji_reactions
+#emoji_reactions.emoji_cmd(bot)
 
 
 bot.run(TOKEN)

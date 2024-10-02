@@ -8,6 +8,8 @@ class Team(commands.Cog):
     def __init__(self, bot, fixtures, path, channel):
         
         self.bot = bot
+        self.bot_id = 1112735643114680361
+
         self.path = path
         self.load_team()
 
@@ -20,12 +22,22 @@ class Team(commands.Cog):
         self.captain_id = 184737297734959104 #265576326788808704 # Jack
         self.captain = self.bot.get_user(self.captain_id)
 
+        # team emoji
+        emojis = {
+            'matty': '🕎',
+            
+
+        }
+
 
         # create team data
 
         answer_data = ['availability', 'paid', 'vote']
         self.get_team_data(answer_data, group_answers = True)
         self.get_team_data(['goal', 'assist', 'motm'])
+
+        # start bot event functions
+        self.init_bot_event()
 
 
     # =========================================================================
@@ -102,7 +114,7 @@ class Team(commands.Cog):
     # --------------------- Team commands -------------------------------------
     # =========================================================================
 
-    @commands.command(name='available', aliases=['avaliable', 'availiable', 'avail', 'a', ' avaliable'])
+    @commands.command(name='available', aliases=['avaliable', 'availiable', 'avail', 'a'])
     async def available(self, ctx, *args):
         "mark availability for a given game"
         try:
@@ -322,12 +334,20 @@ class Team(commands.Cog):
         self.save_team() # save data
 
         
-    @commands.command()
+    @commands.command(name='next', aliases=['n'])
     async def next(self, ctx):
         "Show the next game date and time and the recent form of the opponent"
-        self.get_team_data(['availability'], group_answers = True)
-        msg = self.next_msg()
-        await ctx.channel.send(msg)
+
+        msg ='__**Next match**__\n' # Emoji identifier
+
+        msg += self.next_msg()
+
+        msg += f"\n\nTo update your availability please react to this message!"
+        dis_msg = await ctx.channel.send(msg)
+
+        await dis_msg.add_reaction("⚽") # Yes
+        await dis_msg.add_reaction("❌") # No
+        await dis_msg.add_reaction("❔") # Maybe
 
 
     @commands.command()
@@ -450,7 +470,8 @@ class Team(commands.Cog):
         
     def next_msg(self):
         "Generate the next game message"
-        #print(self.fixtures.next_game_info())
+        self.get_team_data(['availability'], group_answers = True)
+
         next_info, opponent_form, prev_match_opp, date = self.fixtures.next_game_info()
 
         # avaliablity of players
@@ -477,10 +498,8 @@ class Team(commands.Cog):
         if len(no_response) > 0:
             avaliable_msg += f'\nNo response ({len(no_response)}): {", ".join(no_response)}'
 
-    
-        opponent_form = f"Opponent's {opponent_form}"
             
-        return (next_info + '\n\n' + avaliable_msg + '\n\n' + opponent_form + '\n\n' + prev_match_opp)
+        return (next_info + '\n\n' + prev_match_opp + '\n\n' + avaliable_msg + '\n\n' + opponent_form )
         
     def outstanding_dict(self):
         "Get the outstanding payments as a dictionary"
@@ -497,6 +516,61 @@ class Team(commands.Cog):
                     outstanding[name].append(date)
 
         return outstanding
+    
+    # =========================================================================
+    # Emoji detection
+    # =========================================================================
+
+     # detect reactions on a message
+    # function should detect: or oiginal msg, authorid, emoji, and emoji's user id
+    def init_bot_event(self):
+
+        @self.bot.event
+        async def on_raw_reaction_add(payload):
+            """Emoji Reactions - Detect reactions on a message"""
+            # ---------------------------------------------------
+            # get data emoji
+
+            author_id = payload.message_author_id
+            user_id = payload.user_id
+            
+            if (user_id == self.bot_id) or (author_id != self.bot_id):
+            # ignore bot's reaction or not bot's message
+                return
+
+            # get message content
+            msg_id = payload.message_id
+            # Attempt to get the channel as a guild channel
+            channel = self.bot.get_channel(int(payload.channel_id))
+            if channel is None:  # If the channel doesn't exist, it might/should be a DM
+                user = await self.bot.fetch_user(payload.user_id)  # Fetch the user by their ID
+                channel = user.dm_channel  # Get the DM channel of the user
+
+                if channel is None:  # If the DM channel doesn't exist, create it
+                    # shouldn't fire
+                    channel = await user.create_dm()
+
+            message = await channel.fetch_message(msg_id)
+
+            msg_content = message.content
+            msg_author_id = message.author
+            user_emoji = payload.emoji.name
+
+
+            # ---------------------------------------------------
+
+            # availabilty message
+            if msg_content.startswith("__**Next match**__"):
+                print('Next match')
+
+                print(msg_content)
+                print(user_emoji)
+                print(user_id)
+                #await channel.send(f"**Availability**\n{user_id} reacted with: {user_emoji}")
+
+            # paid message 
+            
+            # vote message 
         
     # =========================================================================
     # Import and exporting team data to json
