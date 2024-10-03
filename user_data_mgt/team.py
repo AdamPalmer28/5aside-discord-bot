@@ -25,7 +25,6 @@ class Team(commands.Cog):
         # team emoji
         emojis = {
             'matty': '🕎',
-            
 
         }
 
@@ -553,6 +552,7 @@ class Team(commands.Cog):
             message = await channel.fetch_message(msg_id)
 
             msg_content = message.content
+            msg_dt = message.created_at
             msg_author_id = message.author
             user_emoji = payload.emoji.name
 
@@ -563,12 +563,30 @@ class Team(commands.Cog):
 
             # availabilty message
             if msg_content.startswith("__**Next match**__"):
+
+                # if msg date < last fixture date, ignore
+                if self.fixtures.previous_date.replace(tzinfo=None) > msg_dt.replace(tzinfo=None):
+                    
+                    # send msg to user to say it was ignored
+                    dis_user = self.bot.get_user(int(user_id))
+
+                    msg = f'Your reaction to the next match message was ignored as the message was sent before the last game'
+                    msg += f'\n\nPlease !n to get the next match message'
+
+                    await dis_user.send(msg)
+
+                    return
                 
                 if user_emoji in ['⚽', '❌', '❔']:
                     # get date
                     date = self.fixtures.upcoming_date.strftime('%Y-%m-%d')
-                    user.availability[date] = 'yes' if user_emoji == '⚽' else 'no' if user_emoji == '❌' else 'maybe'
+                    response = 'yes' if user_emoji == '⚽' else 'no' if user_emoji == '❌' else 'maybe'
                     
+                    user.availability[date] = response
+                    # add default paid response
+                    if response == 'yes':
+                        user.paid[date] = user.paid.get(date, False)
+
                     self.save_team()
                     
                     await message.edit(content = self.next_msg())
