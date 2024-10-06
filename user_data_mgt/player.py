@@ -32,6 +32,9 @@ class Player:
         self.motm = motm
         self.vote = vote
 
+        # emoji
+        self.emoji = None
+
 # =============================================================================
 
 def player_stats(team, results, team_name = 'Earth Wind and Maguire'):

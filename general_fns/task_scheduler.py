@@ -201,26 +201,38 @@ class Scheduler(commands.Cog):
     @routine_function
     async def chase_vote(self):
         "Chase MOTM vote for previous game"
-        for id, user in self.team.team.items():
-            if user.availability.get(self.last_week, 'no') != 'yes':
-                continue
+
+        msg = f"__**Man of the Match**__\n\n"
+        msg += f"Vote for who you think **MOTM** was in last week's game ({self.last_week}).\n"
+        msg += f"Please vote by reacting to the message with the player's emoji.\n\n"
+
+        team = self.team.availability.get(self.last_week, {})
+        team = team['yes']
+        team_users = {id: user for id, user in self.team.team.items() if user.display_name in team}
+
+        for id, user in team_users.items():
+            msg += f"{user.emoji} - {user.display_name}\n"
+
+
+        msg += f"\n\nMOTM will be announced **6pm Sunday**\n"
+
+        emojis = [user.emoji for id, user in team_users.items()]
+        
+        for id, user in team_users.items():
             vote = user.vote.get(self.last_week, False)
             
-
             if not vote:
                 # send message to player
                 dis_user = self.bot.get_user(int(id))
 
-                msg = f"__**Man of the Match**__\n\n"
-                msg += f"Please vote for who you think is **MOTM** in last week's game ({self.last_week}).\n"
-                msg += f"To vote type: `!vote player_name`\n\n"
-                msg += f"MOTM will be announced **6pm Sunday**\n"
-
-                await dis_user.send(msg)
+            dis_msg = await dis_user.send(msg)
+            for emoji in emojis:
+                #print(emoji)
+                await dis_msg.add_reaction(emoji)
 
         self.meta['chasers']['vote'] = dt.now()
 
-
+    # calculate and announce motm
     @routine_function
     async def announce_motm(self):
         "Announce MOTM for previous game"

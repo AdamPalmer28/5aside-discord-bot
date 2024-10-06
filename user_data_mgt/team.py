@@ -2,6 +2,7 @@ from discord.ext import commands
 from .player import Player, player_stats
 import json
 from datetime import datetime as dt
+import discord
 
 class Team(commands.Cog):
 
@@ -23,14 +24,27 @@ class Team(commands.Cog):
         self.captain = self.bot.get_user(self.captain_id)
 
         # team emoji
-        emojis = {
-            'matty': '🕎',
-
+        self.emojis_hc = {
+            'Adam': '🤓',
+            'Tommy':'🧑‍🦽',
+            'Matty': '🐐',
+            'Jack': '🔞',
+            'Tom': '👌',
+            'Ben': '🅱️',
+            'James': discord.utils.get(bot.emojis, name="CSAFMdmUAAAFzaH"),
+            'Tk': '👻',
+            'Noz': '🔥',
         }
+        # give users their emojis
+        for id, user in self.team.items():
+            for name in user.name:
+                emoji = self.emojis_hc.get(user.display_name, False)
+                if emoji:
+                    user.emoji = emoji
+                    break
 
 
         # create team data
-
         answer_data = ['availability', 'paid', 'vote']
         self.get_team_data(answer_data, group_answers = True)
         self.get_team_data(['goal', 'assist', 'motm'])
@@ -358,6 +372,125 @@ class Team(commands.Cog):
 
         await ctx.send(f'```{table.to_string(index=False)}```')
 
+# =========================================================================
+    # Emoji detection
+    # =========================================================================
+
+     # detect reactions on a message
+    # function should detect: or oiginal msg, authorid, emoji, and emoji's user id
+    def init_bot_event(self):
+
+        @self.bot.event
+        async def on_raw_reaction_add(payload):
+            """Emoji Reactions - Detect reactions on a message"""
+            # ---------------------------------------------------
+            # get data emoji
+
+            author_id = payload.message_author_id
+            user_id = payload.user_id
+            
+            if (user_id == self.bot_id) or (author_id != self.bot_id):
+            # ignore bot's reaction or not bot's message
+                return
+
+            # get message content
+            msg_id = payload.message_id
+            # Attempt to get the channel as a guild channel
+            channel = self.bot.get_channel(int(payload.channel_id))
+            if channel is None:  # If the channel doesn't exist, it might/should be a DM
+                user = await self.bot.fetch_user(payload.user_id)  # Fetch the user by their ID
+                channel = user.dm_channel  # Get the DM channel of the user
+
+                if channel is None:  # If the DM channel doesn't exist, create it
+                    # shouldn't fire
+                    channel = await user.create_dm()
+
+            message = await channel.fetch_message(msg_id)
+
+            msg_content = message.content
+            msg_dt = message.created_at
+            msg_author_id = message.author
+            user_emoji = payload.emoji.name
+
+            user = self.team.get(str(user_id), False)
+            if user == False:
+                return
+            # ---------------------------------------------------
+
+            # availabilty message
+            if msg_content.startswith("__**Next match**__"):
+
+                # if msg date < last fixture date, ignore
+                if self.fixtures.previous_date.replace(tzinfo=None) > msg_dt.replace(tzinfo=None):
+                    
+                    # send msg to user to say it was ignored
+                    dis_user = self.bot.get_user(int(user_id))
+
+                    msg = f'Your reaction to the next match message was ignored as the message was sent before the last game'
+                    msg += f'\n\nPlease !n to get the next match message'
+
+                    await dis_user.send(msg)
+
+                    return
+                
+                if user_emoji in ['⚽', '❌', '❔']:
+                    # get date
+                    date = self.fixtures.upcoming_date.strftime('%Y-%m-%d')
+                    response = 'yes' if user_emoji == '⚽' else 'no' if user_emoji == '❌' else 'maybe'
+                    
+                    user.availability[date] = response
+                    # add default paid response
+                    if response == 'yes':
+                        user.paid[date] = user.paid.get(date, False)
+
+                    self.save_team()
+                    
+                    await message.edit(content = self.next_msg())
+
+                emoji_fn = "Next match"
+            
+            # paid message 
+            if msg_content.startswith("__**Outstanding payments**__"):
+                
+                if user_emoji in ['💸','💰']:
+                    
+                    # 💸 paid this week
+                    if user_emoji == '💸':
+                        date = self.fixtures.previous_date.strftime('%Y-%m-%d')
+                        user.paid[date] = True
+
+                    # 💰 paid all
+                    if user_emoji == '💰':
+                        for date in self.outstanding_dict()[user.display_name]:
+                            user.paid[date] = True
+                
+                    self.save_team()
+                emoji_fn = "Outstanding payments"
+
+            # vote message 
+            if msg_content.startswith("__**Man of the Match**__"):
+                emoji_fn = "MOTM"
+
+                for id, player in self.team.items():
+
+                    if user_emoji == player.emoji:
+                        await self.captain.send(f'{user.display_name} has voted for {player.display_name}')
+
+                        # cant vote for themselves
+                        if int(id) == user_id:
+                            dis_user = self.bot.get_user(int(user_id))
+                            await dis_user.send('You cannot vote for yourself')
+                            return
+                        
+                        # update vote
+                        date = self.fixtures.previous_date.strftime('%Y-%m-%d')
+                        user.vote[date] = player.display_name
+                        self.save_team()
+                        break
+
+            # Message Captain
+            await self.captain.send(f'{user.display_name} has reacted to the {emoji_fn} message with {user_emoji}')
+
     # =========================================================================
     # --------------------- Helper functions ----------------------------------
     # =========================================================================
@@ -515,112 +648,6 @@ class Team(commands.Cog):
                     outstanding[name].append(date)
 
         return outstanding
-    
-    # =========================================================================
-    # Emoji detection
-    # =========================================================================
-
-     # detect reactions on a message
-    # function should detect: or oiginal msg, authorid, emoji, and emoji's user id
-    def init_bot_event(self):
-
-        @self.bot.event
-        async def on_raw_reaction_add(payload):
-            """Emoji Reactions - Detect reactions on a message"""
-            # ---------------------------------------------------
-            # get data emoji
-
-            author_id = payload.message_author_id
-            user_id = payload.user_id
-            
-            if (user_id == self.bot_id) or (author_id != self.bot_id):
-            # ignore bot's reaction or not bot's message
-                return
-
-            # get message content
-            msg_id = payload.message_id
-            # Attempt to get the channel as a guild channel
-            channel = self.bot.get_channel(int(payload.channel_id))
-            if channel is None:  # If the channel doesn't exist, it might/should be a DM
-                user = await self.bot.fetch_user(payload.user_id)  # Fetch the user by their ID
-                channel = user.dm_channel  # Get the DM channel of the user
-
-                if channel is None:  # If the DM channel doesn't exist, create it
-                    # shouldn't fire
-                    channel = await user.create_dm()
-
-            message = await channel.fetch_message(msg_id)
-
-            msg_content = message.content
-            msg_dt = message.created_at
-            msg_author_id = message.author
-            user_emoji = payload.emoji.name
-
-            user = self.team.get(str(user_id), False)
-            if user == False:
-                return
-            # ---------------------------------------------------
-
-            # availabilty message
-            if msg_content.startswith("__**Next match**__"):
-
-                # if msg date < last fixture date, ignore
-                if self.fixtures.previous_date.replace(tzinfo=None) > msg_dt.replace(tzinfo=None):
-                    
-                    # send msg to user to say it was ignored
-                    dis_user = self.bot.get_user(int(user_id))
-
-                    msg = f'Your reaction to the next match message was ignored as the message was sent before the last game'
-                    msg += f'\n\nPlease !n to get the next match message'
-
-                    await dis_user.send(msg)
-
-                    return
-                
-                if user_emoji in ['⚽', '❌', '❔']:
-                    # get date
-                    date = self.fixtures.upcoming_date.strftime('%Y-%m-%d')
-                    response = 'yes' if user_emoji == '⚽' else 'no' if user_emoji == '❌' else 'maybe'
-                    
-                    user.availability[date] = response
-                    # add default paid response
-                    if response == 'yes':
-                        user.paid[date] = user.paid.get(date, False)
-
-                    self.save_team()
-                    
-                    await message.edit(content = self.next_msg())
-
-                emoji_fn = "Next match"
-            
-            # paid message 
-            if msg_content.startswith("__**Outstanding payments**__"):
-                
-                if user_emoji in ['💸','💰']:
-                    
-                    # 💸 paid this week
-                    if user_emoji == '💸':
-                        date = self.fixtures.previous_date.strftime('%Y-%m-%d')
-                        user.paid[date] = True
-
-                    # 💰 paid all
-                    if user_emoji == '💰':
-                        for date in self.outstanding_dict()[user.display_name]:
-                            user.paid[date] = True
-                
-                    self.save_team()
-                emoji_fn = "Outstanding payments"
-
-            # vote message 
-            if msg_content.startswith("__**Man of the Match**__"):
-                
-
-                emoji_fn = "MOTM"
-
-
-            # Message Captain
-            #if user_id != self.captain_id:
-            await self.captain.send(f'{user.display_name} has reacted to the {emoji_fn} message with {user_emoji}')
 
         
     # =========================================================================
