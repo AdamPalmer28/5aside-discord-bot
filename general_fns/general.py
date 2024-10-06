@@ -25,7 +25,6 @@ def general_msg(bot):
         # account for commands which start with '! cmd'
         if message.content.lower().startswith('! '):
 
-            print("Auto correct command on phones")
             message.content = '!' + message.content[2:]
 
             await bot.process_commands(message)
