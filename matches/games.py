@@ -235,8 +235,8 @@ class Fixtures(commands.Cog):
         opponent = next_game['Away'] if next_game['Home'] == self.team else next_game['Home']
 
         # Match fixture
-        response = f'__**{opponent}**__ on __**{next_game["Date"].date()}**__' + \
-            f' at __**{next_game["Time"].strftime("%H:%M")}**__'
+        response = f'**{opponent}** on **{next_game["Date"].date()}**' + \
+            f' at **{next_game["Time"].strftime("%H:%M")}**'
         
         # last match against opponent
         prev_match_opp = self.matches_against_opp(opponent)

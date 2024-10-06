@@ -628,7 +628,7 @@ class Team(commands.Cog):
             avaliable_msg += f'\nNo response ({len(no_response)}): {", ".join(no_response)}'
  
         msg ='__**Next match**__\n' # Emoji identifier
-        msg += next_info + '\n\n' + prev_match_opp + '\n\n'
+        msg += next_info + '\n' + prev_match_opp + '\n\n'
         msg += avaliable_msg + '\n\n' + opponent_form 
         msg += '\n\nTo update your availability please react to this message!'
         return msg
