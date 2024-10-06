@@ -227,7 +227,6 @@ class Scheduler(commands.Cog):
 
             dis_msg = await dis_user.send(msg)
             for emoji in emojis:
-                #print(emoji)
                 await dis_msg.add_reaction(emoji)
 
         self.meta['chasers']['vote'] = dt.now()
@@ -262,9 +261,6 @@ class Scheduler(commands.Cog):
                     msg = f"Congratulations to {', '.join(motm_player)} for winning MOTM for last weeks game. ({' '.join(motm_at)})\n"
                     
             await self.channel.send(msg)
-        
-        else:
-            print('No MOTM votes')
 
     # =========================================================================
     # Extract meta data
