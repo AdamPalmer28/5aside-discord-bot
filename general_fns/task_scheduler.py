@@ -191,8 +191,8 @@ class Scheduler(commands.Cog):
           
             dis_msg = await dis_user.send(msg)
 
-            await msg.add_reaction("💸") # paid
-            await msg.add_reaction("💰") # paid_all
+            await dis_msg.add_reaction("💸") # paid
+            await dis_msg.add_reaction("💰") # paid_all
 
         # update meta data
         self.meta['chasers']['paid'] = dt.now()
