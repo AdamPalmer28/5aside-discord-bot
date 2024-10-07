@@ -164,9 +164,9 @@ class Scheduler(commands.Cog):
 
             dis_msg = await dis_user.send(msg)
 
-            await msg.add_reaction("⚽") # Yes
-            await msg.add_reaction("❌") # No
-            await msg.add_reaction("❔") # Maybe
+            await dis_msg.add_reaction("⚽") # Yes
+            await dis_msg.add_reaction("❌") # No
+            await dis_msg.add_reaction("❔") # Maybe
 
 
         # update meta data
