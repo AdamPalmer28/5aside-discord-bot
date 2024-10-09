@@ -112,7 +112,7 @@ class Scheduler(commands.Cog):
     # -------------------------------------------------------------------------
 
     @routine_function
-    async def next_match_info(self, ctx):
+    async def next_match_info(self):
         "Send next match info"
         
         msg = self.team.next_msg()
