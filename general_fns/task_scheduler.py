@@ -226,10 +226,12 @@ class Scheduler(commands.Cog):
         for id, user in team_users.items():
             vote = user.vote.get(self.last_week, False)
             
-            if not vote:
-                # send message to player
-                dis_user = self.bot.get_user(int(id))
+            if vote:
+                continue
 
+            # send message to player
+            dis_user = self.bot.get_user(int(id))
+            
             dis_msg = await dis_user.send(msg)
             for emoji in emojis:
                 await dis_msg.add_reaction(emoji)
