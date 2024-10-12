@@ -419,6 +419,7 @@ class Team(commands.Cog):
 
             # availabilty message
             if msg_content.startswith("__**Next match**__"):
+                emoji_fn = "Next match"
 
                 # if msg date < last fixture date, ignore
                 if self.fixtures.previous_date.replace(tzinfo=None) > msg_dt.replace(tzinfo=None):
@@ -447,10 +448,10 @@ class Team(commands.Cog):
                     
                     await message.edit(content = self.next_msg())
 
-                emoji_fn = "Next match"
             
             # paid message 
             if msg_content.startswith("__**Outstanding payments**__"):
+                emoji_fn = "Outstanding payments"
                 
                 if user_emoji in ['💸','💰']:
                     
@@ -465,7 +466,6 @@ class Team(commands.Cog):
                             user.paid[date] = True
                 
                     self.save_team()
-                emoji_fn = "Outstanding payments"
 
             # vote message 
             if msg_content.startswith("__**Man of the Match**__"):
@@ -489,7 +489,8 @@ class Team(commands.Cog):
                         break
 
             # Message Captain
-            await self.captain.send(f'{user.display_name} has reacted to the {emoji_fn} message with {user_emoji}')
+            if emoji_fn:
+                await self.captain.send(f'{user.display_name} has reacted to the {emoji_fn} message with {user_emoji}')
 
     # =========================================================================
     # --------------------- Helper functions ----------------------------------
