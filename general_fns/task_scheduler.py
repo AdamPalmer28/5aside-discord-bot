@@ -127,8 +127,11 @@ class Scheduler(commands.Cog):
     @routine_function
     async def fixtures_update(self, force = False):
         "Update fixtures"
-        last_success_dt = datetime.datetime.strptime(self.meta['fixtures_updates']['last_success'], "%Y-%m-%d %H:%M:%S")
-        
+        if type(self.meta['fixtures_updates']['last_success']) == str:
+            last_success_dt = datetime.datetime.strptime(self.meta['fixtures_updates']['last_success'], "%Y-%m-%d %H:%M:%S")
+        else:
+            last_success_dt = self.meta['fixtures_updates']['last_success']
+
         if (last_success_dt < self.last_week_dt + timedelta(days = 1)) \
             or force:
 
