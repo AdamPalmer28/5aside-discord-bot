@@ -416,6 +416,7 @@ class Team(commands.Cog):
             if user == False:
                 return
             # ---------------------------------------------------
+            emoji_fn = False
 
             # availabilty message
             if msg_content.startswith("__**Next match**__"):
@@ -450,8 +451,8 @@ class Team(commands.Cog):
 
             
             # paid message 
-            if msg_content.startswith("__**Outstanding payments**__"):
-                emoji_fn = "Outstanding payments"
+            if msg_content.startswith("__**Outstanding Payments**__"):
+                emoji_fn = "Outstanding Payments"
                 
                 if user_emoji in ['💸','💰']:
                     
