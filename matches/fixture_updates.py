@@ -77,7 +77,18 @@ async def check_new_fixture_data(new_data: pd.DataFrame, old_data: pd.DataFrame,
             await channel.send(latest_results_msg)
 
             results = new_results[['Time','Home','Home score','Away score','Away']]
-            await channel.send(f'```{results.to_string(index=False)}```')
+
+            try:
+                await channel.send(f'```{results.to_string(index=False)}```')
+            except Exception as e:
+                if '400 Bad Request (error code: 50035): Invalid Form Body' in str(e):
+                    half = len(results) // 2
+                    first_half = results.iloc[:half]
+                    second_half = results.iloc[half:]
+                    await channel.send(f'```{first_half.to_string(index=False)}```')
+                    await channel.send(f'```{second_half.to_string(index=False, header=False)}```')
+                else:
+                    raise e
 
 
             # case 2.1: new team
