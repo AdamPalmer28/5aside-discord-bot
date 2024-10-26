@@ -40,28 +40,27 @@ def get_league_matches():
                 time, _, t1, s1, _, s2, t2= tr.find_all('td')
                 # create row
                 row = {'Date': date[0], 'Time': time.text, 
-                    'Home': (t1.text).strip(), 
+                    'Home': (t1.text).strip(),
                     'Away': (t2.text).strip(), 
-                    'Home score': (s1.text), 
-                    'Away score': (s2.text)}
-                
+                    'Home score': (s1.text).replace(' ', '').replace('\r', '').replace('\n', ''), 
+                    'Away score': (s2.text).replace(' ', '').replace('\r', '').replace('\n', '')}
+            
                 # append row to data
                 data = pd.concat([data, pd.DataFrame([row])], ignore_index=True)
 
     # track pending results
-    pending = data[(data['Home score'] == '\n-\n') | (data['Away score'] == '\n-\n')]
+    pending = data[(data['Home score'] == '-') | (data['Away score'] == '-')]
     data['Pending'] = False
     data.loc[pending.index, 'Pending'] = True
 
     # data cleaning
     for col in ['Home score', 'Away score']:
-        data[col] = data[col].str.replace("\n", "")
         data[col] = data[col].str.replace("-", "0")
 
     data['Home score'] = data['Home score'].astype(int)
     data['Away score'] = data['Away score'].astype(int)
 
     # time formatting
-    data['Time'] = pd.to_datetime(data['Time'], format='%H:%M').dt.time 
+    data['Time'] = pd.to_datetime(data['Time'], format='%H:%M').dt.time
 
     return data
